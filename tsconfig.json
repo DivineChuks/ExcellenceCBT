@@ -34,7 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "public/service-worker.js"
-  ],
+, "app/admin/exams/results/page.jsx"  ],
   "exclude": [
     "node_modules"
   ]

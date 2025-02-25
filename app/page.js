@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, Mail } from 'lucide-react'
+import { Eye, EyeOff, Mail, Pen } from 'lucide-react'
 import Image from 'next/image'
 import React, { useState } from 'react'
 
@@ -26,15 +26,15 @@ const UserLogin = () => {
         >
           <div className="grid w-full items-center gap-1.5">
             <Label className="font-semibold text-base" htmlFor="email">
-              Email
+              Reg Number
             </Label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Mail className="w-4 h-4 text-gray-500" />
+                <Pen className="w-4 h-4 text-gray-500" />
               </span>
               <Input
-                type="email"
-                placeholder="Enter your email"
+                type="text"
+                placeholder="Enter your reg no"
                 className="pl-10 bg-transparent py-6 text-base"
                 // {...register("email")}
                 style={{ boxShadow: "none" }}
