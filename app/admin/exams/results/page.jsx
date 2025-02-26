@@ -54,7 +54,7 @@ const data = [
   },
 ]
 
-export const columns = [
+const columns = [
   {
     accessorKey: "regNumber",
     header: "Reg Number",
