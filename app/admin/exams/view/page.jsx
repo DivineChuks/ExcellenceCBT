@@ -154,8 +154,8 @@ const AllExams = () => {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
-                                Add Questions
+                            <DropdownMenuItem onClick={() => router.push(`/admin/exams/manage/${row.original._id}`)}>
+                                Manage Exams
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => router.push(`/admin/exams/edit/${row.original._id}`)}>
                                 Edit

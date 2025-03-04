@@ -129,7 +129,6 @@ const AdminSideBar = () => {
           subItems={[
             { label: "All Exams", href: "/admin/exams/view" },
             { label: "Add Questions", href: "/admin/questions/create" },
-            { label: "Manage Exams", href: "/admin/exams/manage" },
             { label: "Student Results", href: "/admin/exams/results" },
           ]}
         />
