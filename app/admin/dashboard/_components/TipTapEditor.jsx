@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Button } from "@/components/ui/button";
 
-const TiptapEditor = ({ value, onChange }) => {
+const TiptapEditor = ({ value, onChange, reset }) => {
   const editor = useEditor({
     extensions: [StarterKit],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML()); // Saves HTML content
+      onChange(editor.getText()); // Saves HTML content
     },
   });
+
+  useEffect(() => {
+    if (reset && editor) {
+      editor.commands.setContent('');
+    }
+  }, [reset, editor]);
 
   if (!editor) return null;
 

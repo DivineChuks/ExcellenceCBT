@@ -17,11 +17,12 @@ import { SidebarMenu } from "./SidebarMenu";
 
 const AdminSideBar = () => {
   const router = useRouter();
-  const [activeLink, setActiveLink] = useState("AddProduct");
+  const [activeLink, setActiveLink] = useState("dashboard");
   const [openMenus, setOpenMenus] = useState({});
   const pathname = usePathname();
   const handleLogout = () => {
-
+    localStorage.clear()
+    router.push("/admin/auth")
   };
 
   useEffect(() => {
@@ -30,23 +31,34 @@ const AdminSideBar = () => {
         setActiveLink("dashboard");
         break;
       case "/admin/students":
+      case "/admin/students/view":
+      case "/admin/students/register":
         setActiveLink("students");
         break;
       case "/admin/subjects":
+      case "/admin/subjects/add":
         setActiveLink("subjects");
         break;
       case "/admin/questions":
+      case "/admin/questions/manage":
+      case "/admin/questions/create":
         setActiveLink("questions");
         break;
       case "/admin/exams":
+      case "/admin/exams/add":
+      case "/admin/questions/create":
+      case "/admin/exams/manage":
+      case "/admin/exams/results":
         setActiveLink("exams");
         break;
       case "/admin/settings":
         setActiveLink("settings");
+        break;
       default:
         setActiveLink("");
     }
   }, [pathname]);
+
 
   const toggleMenu = (menu) => {
     setOpenMenus((prev) => ({
@@ -54,6 +66,8 @@ const AdminSideBar = () => {
       [menu]: !prev[menu],
     }));
   };
+
+  console.log("activeLink---->", activeLink)
 
   return (
     <div className="h-screen w-[18rem] hidden md:flex flex-col border-r border-gray-200 py-8 pr-4 sticky top-0 overflow-y-auto bg-white">
@@ -77,7 +91,7 @@ const AdminSideBar = () => {
           icon={<CircleUser size={20} />}
           label="Students"
           isOpen={openMenus.students}
-          toggleMenu={() => toggleMenu("students")}
+          toggleMenu={() => { toggleMenu("students") }}
           active={activeLink === "students"}
           subItems={[
             { label: "All Students", href: "/admin/students/view" },
@@ -85,21 +99,15 @@ const AdminSideBar = () => {
           ]}
         />
 
-        {/* Subjects */}
-        <SidebarMenu
+        <SidebarItem
           icon={<BookOpen size={20} />}
           label="Subjects"
-          isOpen={openMenus.subjects}
-          toggleMenu={() => toggleMenu("subjects")}
+          href="/admin/subjects"
           active={activeLink === "subjects"}
-          subItems={[
-            { label: "All Subjects", href: "/admin/subjects" },
-            { label: "Add Subject", href: "/admin/subjects/add" },
-          ]}
         />
 
         {/* Questions */}
-        <SidebarMenu
+        {/* <SidebarMenu
           icon={<FileText size={20} />}
           label="Questions"
           isOpen={openMenus.questions}
@@ -109,7 +117,7 @@ const AdminSideBar = () => {
             { label: "Manage Questions", href: "/admin/questions/manage" },
             { label: "Create Questions", href: "/admin/questions/create" },
           ]}
-        />
+        /> */}
 
         {/* Exams */}
         <SidebarMenu
@@ -119,7 +127,9 @@ const AdminSideBar = () => {
           toggleMenu={() => toggleMenu("exams")}
           active={activeLink === "exams"}
           subItems={[
-            { label: "Create Exams", href: "/admin/exams/create" },
+            { label: "All Exams", href: "/admin/exams/view" },
+            { label: "Add Questions", href: "/admin/questions/create" },
+            { label: "Manage Exams", href: "/admin/exams/manage" },
             { label: "Student Results", href: "/admin/exams/results" },
           ]}
         />

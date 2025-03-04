@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminNavBar from "../_components/AdminNavBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminSideBar from "../_components/AdminSideBar";
@@ -10,7 +10,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import Container from "@/app/components/Container";
 import {
     flexRender,
@@ -19,8 +19,8 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
-} from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
+} from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
 import {
     Table,
     TableBody,
@@ -28,33 +28,74 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import { MoreHorizontal } from "lucide-react";
+} from "@/components/ui/table";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 const AllSubjects = () => {
-    const [loading, setLoading] = useState(false);
-    const [sorting, setSorting] = React.useState([]);
-    const [columnFilters, setColumnFilters] = React.useState([]);
-    const [columnVisibility, setColumnVisibility] = React.useState({});
-    const [rowSelection, setRowSelection] = React.useState({});
+    const [loading, setLoading] = useState(true);
+    const [subjects, setSubjects] = useState([]);
+    const router = useRouter()
+    const [error, setError] = useState("");
+    const token = localStorage.getItem("token")
+    const [sorting, setSorting] = useState([]);
+    const [columnFilters, setColumnFilters] = useState([]);
+    const [columnVisibility, setColumnVisibility] = useState({});
+    const [rowSelection, setRowSelection] = useState({});
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [selectedSubjectId, setSelectedSubjectId] = useState(null);
 
-    const data = [
-        { id: 1, name: "Mathematics", code: "MTH", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-        { id: 2, name: "English", code: "ENG", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-        { id: 3, name: "Biology", code: "BIO", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-        { id: 4, name: "Physics", code: "PHY", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-        { id: 5, name: "Chemistry", code: "CHE", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-        { id: 6, name: "Economics", code: "ECN", createdAt: "2025-01-10", lastUpdated: "2025-01-10" },
-    ];
+    useEffect(() => {
+        const fetchSubjects = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    }
+                });
+                setSubjects(response.data);
+            } catch (error) {
+                console.error("Failed to fetch students:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSubjects();
+    }, []);
 
     const columns = [
-        { accessorKey: "id", header: "ID" },
-        { accessorKey: "name", header: "Subject Name" },
+        { accessorKey: "title", header: "Subject Title" },
         { accessorKey: "code", header: "Subject Code" },
-        { accessorKey: "createdAt", header: "Created At" },
-        { accessorKey: "lastUpdated", header: "Last Updated" },
         {
-            id: "actions", enableHiding: false, cell: ({ row }) => {
+            accessorKey: "createdAt",
+            header: "Created At",
+            cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("en-GB"), // Formats as DD/MM/YYYY
+        },
+        {
+            accessorKey: "updatedAt",
+            header: "Last Updated",
+            cell: ({ row }) => new Date(row.original.updatedAt).toLocaleDateString("en-GB"), // Formats as DD/MM/YYYY
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -66,17 +107,20 @@ const AllSubjects = () => {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/subjects/edit/${row.original._id}`)}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                                setSelectedSubjectId(row.original._id);
+                                setIsDialogOpen(true);
+                            }}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
-            }
+            },
         },
     ];
 
     const table = useReactTable({
-        data,
+        data: subjects,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -94,6 +138,25 @@ const AllSubjects = () => {
         },
     });
 
+    const handleDeleteSubject = async (id) => {
+        setIsDeleting(true);
+        try {
+            await axios.delete(`${API_BASE_URL}/admin/subject/deleteSubject/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            // Remove the deleted student from the state
+            setSubjects((prevSubjects) => prevSubjects.filter((subject) => subject._id !== id));
+            setIsDialogOpen(false);
+        } catch (error) {
+            console.error("Failed to delete student:", error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div className="flex md:pl-8 min-h-screen">
             <AdminSideBar />
@@ -102,31 +165,33 @@ const AllSubjects = () => {
                 <div className="px-4 py-3 md:py-8 w-full flex justify-center items-start">
                     <Container>
                         {loading ? (
-                            <div className="space-y-6 mt-8">
-                                <Skeleton className="h-24 w-full md:w-1/3" />
-                                <Skeleton className="h-24 w-full md:w-1/3" />
-                                <Skeleton className="h-24 w-full md:w-1/3" />
+                            <div className="space-y-6 mt-8 p-6">
+                                <Skeleton className="h-24 w-full" />
+                                <Skeleton className="h-24 w-full" />
+                                <Skeleton className="h-24 w-full" />
                             </div>
+                        ) : error ? (
+                            <div className="text-red-500">{error}</div>
                         ) : (
                             <div className="p-6">
-                                <h1 className="text-2xl font-bold mb-6">All Subjects</h1>
+                                <Link href="/admin/subjects/add">
+                                    <button className="bg-blue-500 font-semibold px-6 py-2 flex gap-2 items-center rounded-md text-white mb-8"><PlusCircle />Add Subject</button>
+                                </Link>
                                 <div className="rounded-md border">
                                     <Table>
                                         <TableHeader>
                                             {table.getHeaderGroups().map((headerGroup) => (
                                                 <TableRow key={headerGroup.id}>
-                                                    {headerGroup.headers.map((header) => {
-                                                        return (
-                                                            <TableHead key={header.id} className="text-base">
-                                                                {header.isPlaceholder
-                                                                    ? null
-                                                                    : flexRender(
-                                                                        header.column.columnDef.header,
-                                                                        header.getContext()
-                                                                    )}
-                                                            </TableHead>
-                                                        )
-                                                    })}
+                                                    {headerGroup.headers.map((header) => (
+                                                        <TableHead key={header.id} className="text-base">
+                                                            {header.isPlaceholder
+                                                                ? null
+                                                                : flexRender(
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
+                                                                )}
+                                                        </TableHead>
+                                                    ))}
                                                 </TableRow>
                                             ))}
                                         </TableHeader>
@@ -189,6 +254,43 @@ const AllSubjects = () => {
                     </Container>
                 </div>
             </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="mx-auto max-w-[90%] md:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete this subject? This action cannot
+                            be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDialogOpen(false)}
+                            style={{ boxShadow: "none" }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => handleDeleteSubject(selectedSubjectId)}
+                            className="mb-2 md:mb-0 flex gap-2"
+                            disabled={isDeleting}
+                        >
+                            {isDeleting && (
+                                <Image
+                                    src="/loader.gif"
+                                    className="text-white"
+                                    alt="loader"
+                                    width={20}
+                                    height={20}
+                                />
+                            )}
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

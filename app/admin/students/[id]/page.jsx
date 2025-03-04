@@ -15,17 +15,16 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useRouter, useParams } from "next/navigation";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const RegisterStudent = () => {
+const EditStudent = () => {
     const [loading, setLoading] = useState(false);
     const [exams, setExams] = useState([]);
     const router = useRouter();
-    const token = localStorage.getItem("token")
+    const { id } = useParams(); // Get the student ID from the route
+    const token = localStorage.getItem("token");
 
     // Define Zod schema for validation
     const studentSchema = z.object({
@@ -39,7 +38,6 @@ const RegisterStudent = () => {
         register,
         handleSubmit,
         setValue,
-        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(studentSchema),
@@ -51,7 +49,35 @@ const RegisterStudent = () => {
         },
     });
 
-    // Fetch exams from API
+    // Fetch student data for editing
+    useEffect(() => {
+        const fetchStudent = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`${API_BASE_URL}/admin/student/getStudent/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    }
+                });
+                const student = response.data;
+                setValue("name", student.name);
+                setValue("email", student.email);
+                setValue("regNo", student.regNo);
+                setValue("examId", student.examId);
+            } catch (error) {
+                console.error("Error fetching student:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchStudent();
+        }
+    }, [id, setValue]);
+
+    // Fetch exams for the select dropdown
     useEffect(() => {
         const fetchExams = async () => {
             try {
@@ -64,29 +90,28 @@ const RegisterStudent = () => {
         fetchExams();
     }, []);
 
-    console.log("token---->", token)
-
-
+    // Handle form submission
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/admin/students/register`, data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
+            await axios.put(
+                `${API_BASE_URL}/admin/student/editStudent/${id}`,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    }
                 }
-            }
             );
-            toast.success("Student registered successfully!");
-            router.push("/admin/students/view");
+            alert("Student updated successfully!");
+            router.push("/admin/students");
         } catch (error) {
-            console.error("Error registering student:", error);
+            console.error("Error updating student:", error);
         } finally {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="flex md:pl-8 min-h-screen">
@@ -96,12 +121,12 @@ const RegisterStudent = () => {
                 <div className="px-4 py-3 md:py-8 w-full flex justify-center items-start">
                     <Container>
                         <div className="p-6 flex flex-col items-center justify-center min-h-[80vh]">
-                            <div className="bg-white rounded-lg mx-auto shadow-md w-[700px] p-6 py-8">
-                                <h1 className="text-2xl font-bold mb-4">Register Student</h1>
+                            <div className="bg-white rounded-lg mx-auto shadow-md w-[600px] p-6 py-8">
+                                <h1 className="text-2xl font-bold mb-4">Edit Student</h1>
                                 <form onSubmit={handleSubmit(onSubmit)}>
                                     {/* Name Field */}
                                     <div className="mb-4">
-                                        <label className="block text-gray-700 text-base mb-2">Name</label>
+                                        <label className="block text-gray-700 mb-2">Name</label>
                                         <input
                                             {...register("name")}
                                             type="text"
@@ -148,29 +173,26 @@ const RegisterStudent = () => {
                                     </div>
 
                                     {/* Select Exam */}
-                                    {exams.length > 0 && (<div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Select Exam</label>
-                                        <Select
-                                            onValueChange={(value) => setValue("examId", value)}
-                                            defaultValue=""
-                                        >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select Exam" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {exams.map((exam) => (
-                                                    <SelectItem key={exam.id} value={exam.id}>
-                                                        {exam.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {/* {errors.examId && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.examId.message}
-                                            </p>
-                                        )} */}
-                                    </div>)}
+                                    {exams.length > 0 && (
+                                        <div className="mb-4">
+                                            <label className="block text-gray-700 mb-2">Select Exam</label>
+                                            <Select
+                                                onValueChange={(value) => setValue("examId", value)}
+                                                defaultValue=""
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select Exam" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {exams.map((exam) => (
+                                                        <SelectItem key={exam.id} value={exam.id}>
+                                                            {exam.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
 
                                     {/* Submit Button */}
                                     <Button
@@ -178,7 +200,7 @@ const RegisterStudent = () => {
                                         className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base text-semibold text-white"
                                         disabled={loading}
                                     >
-                                        {loading ? "Registering..." : "Register"}
+                                        {loading ? "Updating..." : "Update"}
                                     </Button>
                                 </form>
                             </div>
@@ -186,9 +208,8 @@ const RegisterStudent = () => {
                     </Container>
                 </div>
             </div>
-            <ToastContainer />
         </div>
     );
 };
 
-export default RegisterStudent;
+export default EditStudent;

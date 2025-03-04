@@ -1,13 +1,20 @@
 "use client";
 import { Bell, Menu, MenuIcon, Search, User } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const AdminNavBar = () => {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear()
+    router.push("/admin/auth")
   };
 
   return (
@@ -76,7 +83,7 @@ const AdminNavBar = () => {
                 Settings
               </a>
               <button
-                onClick={() => alert("Logging out...")}
+                onClick={() => handleLogout()}
                 className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
               >
                 Logout

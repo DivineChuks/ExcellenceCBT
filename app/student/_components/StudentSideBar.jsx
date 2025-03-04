@@ -33,9 +33,6 @@ const StudentSideBar = () => {
       case "/student/scores":
         setActiveLink("scores");
         break;
-      case "/student/leaderboard":
-        setActiveLink("leaderboard");
-        break;
       case "/student/settings":
         setActiveLink("settings");
         break;
@@ -90,14 +87,6 @@ const StudentSideBar = () => {
           label="My Scores"
           href="/student/scores"
           active={activeLink === "scores"}
-        />
-
-        {/* Leaderboard */}
-        <SidebarItem
-          icon={<FileText size={20} />}
-          label="Leaderboard"
-          href="/student/leaderboard"
-          active={activeLink === "leaderboard"}
         />
 
         {/* Settings */}
