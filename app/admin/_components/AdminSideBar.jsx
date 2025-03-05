@@ -1,7 +1,6 @@
 "use client";
 import {
   BookOpen,
-  CircleHelp,
   CircleUser,
   ClipboardList,
   FileText,
@@ -121,21 +120,7 @@ const AdminSideBar = () => {
         /> */}
 
         {/* Exams */}
-
-        <SidebarItem
-          icon={<ClipboardList size={20} />}
-          label="Exams"
-          href="/admin/exams/view"
-          active={activeLink === "exams"}
-        />
-
-        <SidebarItem
-          icon={<CircleHelp size={20} />}
-          label="Add Questions"
-          href="/admin/questions/create"
-          active={activeLink === "questions"}
-        />
-        {/* <SidebarMenu
+        <SidebarMenu
           icon={<ClipboardList size={20} />}
           label="Exams"
           isOpen={openMenus.exams}
@@ -145,7 +130,7 @@ const AdminSideBar = () => {
             { label: "All Exams", href: "/admin/exams/view" },
             { label: "Add Questions", href: "/admin/questions/create" },
           ]}
-        /> */}
+        />
 
         {/* Settings */}
         <SidebarItem
