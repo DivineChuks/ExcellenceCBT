@@ -23,6 +23,11 @@ import Container from "@/app/components/Container";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminSideBar from "@/app/admin/_components/AdminSideBar";
 import AdminNavBar from "@/app/admin/_components/AdminNavBar";
+import axios from "axios";
+
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const token = localStorage.getItem("token");
 
 const ExamResultTable = () => {
   const { id } = useParams(); // Get Exam ID from URL
@@ -32,10 +37,16 @@ const ExamResultTable = () => {
   React.useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await fetch(`/api/admin/exams/${id}/result`);
-        const results = await res.json();
+        const results = await axios.get(`${API_BASE_URL}/admin/exams/result/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        console.log("results--->", results)
         setData(
-          results.map((result) => ({
+          results.data?.map((result) => ({
             studentId: result.studentId,
             name: result.studentName,
             totalScore: result.totalScore,
@@ -50,8 +61,7 @@ const ExamResultTable = () => {
         setLoading(false);
       }
     };
-
-    if (id) fetchResults();
+    fetchResults();
   }, [id]);
 
   const columns = [
@@ -66,19 +76,14 @@ const ExamResultTable = () => {
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
     },
     {
-      accessorKey: "totalScore",
-      header: "Total Score",
-      cell: ({ row }) => <div className="font-semibold">{row.getValue("totalScore")}</div>,
-    },
-    {
-      accessorKey: "totalCorrect",
-      header: "Correct Answers",
-      cell: ({ row }) => <div>{row.getValue("totalCorrect")}</div>,
-    },
-    {
       accessorKey: "totalAnswers",
       header: "Total Questions",
       cell: ({ row }) => <div>{row.getValue("totalAnswers")}</div>,
+    },
+    {
+      accessorKey: "totalScore",
+      header: "Total Score",
+      cell: ({ row }) => <div className="font-semibold">{row.getValue("totalScore")}</div>,
     },
     {
       accessorKey: "percentage",

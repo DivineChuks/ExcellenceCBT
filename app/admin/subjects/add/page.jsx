@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // API Base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -132,7 +133,13 @@ const AddSubjects = () => {
                                         className="w-full bg-blue-500 text-base font-semibold py-2 hover:bg-blue-600 px-6"
                                         disabled={loading}
                                     >
-                                        {loading ? "Adding..." : "Add Subject"}
+                                        {loading ? <Image
+                                            src="/loader.gif"
+                                            className="text-white"
+                                            alt="loader"
+                                            width={20}
+                                            height={20}
+                                        /> : "Add Subject"}
                                     </Button>
                                 </form>
                             </div>

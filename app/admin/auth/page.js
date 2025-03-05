@@ -55,7 +55,7 @@ const AdminLogin = () => {
         `${API_BASE_URL}/admin/auth/login`,
         data
       );
-     console.log("res--->", response.data)
+      console.log("res--->", response.data)
       if (response.status === 200) {
         dispatch(loginSuccess(response.data));
         toast.success("Login successful!");
@@ -74,7 +74,7 @@ const AdminLogin = () => {
       setIsLoading(false);
     }
   };
-  
+
 
   return (
     <div className="flex flex-col justify-center w-full items-center h-screen">
@@ -152,7 +152,13 @@ const AdminLogin = () => {
             disabled={isLoading}
             className="bg-blue-500 py-6 hidden md:flex items-center font-semibold gap-3 hover:bg-main hover:bg-opacity-70 text-base"
           >
-            {isLoading ? "Signing In..." : "Login"}
+            {isLoading ? <Image
+              src="/loader.gif"
+              className="text-white"
+              alt="loader"
+              width={20}
+              height={20}
+            /> : "Login"}
           </Button>
 
           {/* Mobile Submit Button */}
@@ -161,7 +167,13 @@ const AdminLogin = () => {
             disabled={isLoading}
             className="w-[calc(100%-30px)] flex gap-3 md:hidden mx-4 fixed bg-main hover:bg-main hover:bg-opacity-80 bottom-6 left-0"
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {isLoading ? <Image
+              src="/loader.gif"
+              className="text-white"
+              alt="loader"
+              width={20}
+              height={20}
+            /> : "Sign In"}
           </button>
         </form>
       </div>
