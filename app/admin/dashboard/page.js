@@ -67,7 +67,7 @@ const AdminDashboard = () => {
               <div className="">
                 <div className="flex flex-col gap-2">
                   <h2 className="font-bold text-xl hidden md:flex">
-                    Welcome Excellence
+                    Welcome Excellence CBT
                   </h2>
                   <p className="text-base text-gray-500">
                     This is your current analysis
@@ -88,9 +88,9 @@ const AdminDashboard = () => {
                 <main className="flex flex-col mt-6">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <SummaryCard title="Total Students" value="500" icon={<User size={40} />} />
-                    <SummaryCard title="Total Subjects" value="10" icon={<ClipboardList size={40} />} />
-                    <SummaryCard title="Total Exams" value="15" icon={<PieChart size={40} />} />
+                    <SummaryCard title="Total Students" value="0" icon={<User size={40} />} />
+                    <SummaryCard title="Total Subjects" value="0" icon={<ClipboardList size={40} />} />
+                    <SummaryCard title="Total Exams" value="0" icon={<PieChart size={40} />} />
                   </div>
 
                   {/* Charts */}

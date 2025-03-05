@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -51,20 +52,26 @@ const RegisterStudent = () => {
         },
     });
 
-    // Fetch exams from API
+    // Fetch available exams
     useEffect(() => {
         const fetchExams = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/admin/exams`);
-                setExams(response.data.exams);
+                setLoading(true);
+                const response = await axios.get(`${API_BASE_URL}/admin/exams/getExams`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    }
+                });
+                setExams(response.data.findExams);
             } catch (error) {
-                console.error("Error fetching exams:", error);
+                console.error("Failed to fetch exams:", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchExams();
     }, []);
-
-    console.log("token---->", token)
 
 
     const onSubmit = async (data) => {
@@ -149,36 +156,38 @@ const RegisterStudent = () => {
 
                                     {/* Select Exam */}
                                     {exams.length > 0 && (<div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Select Exam</label>
+                                        <label className="block text-gray-700 mb-2">Choose Exam</label>
                                         <Select
                                             onValueChange={(value) => setValue("examId", value)}
                                             defaultValue=""
                                         >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select Exam" />
+                                            <SelectTrigger className="w-full py-4">
+                                                <SelectValue placeholder="Select Exam" className="text-red-500" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {exams.map((exam) => (
-                                                    <SelectItem key={exam.id} value={exam.id}>
-                                                        {exam.name}
+                                                    <SelectItem key={exam._id} value={exam._id}>
+                                                        {exam.title}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {/* {errors.examId && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.examId.message}
-                                            </p>
-                                        )} */}
+
                                     </div>)}
 
                                     {/* Submit Button */}
                                     <Button
                                         type="submit"
-                                        className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base text-semibold text-white"
+                                        className="mt-6 w-full bg-blue-500 py-2 hover:bg-blue-400 text-base font-semibold text-white"
                                         disabled={loading}
                                     >
-                                        {loading ? "Registering..." : "Register"}
+                                        {loading ? <Image
+                                            src="/loader.gif"
+                                            className="text-white"
+                                            alt="loader"
+                                            width={20}
+                                            height={20}
+                                        /> : "Register"}
                                     </Button>
                                 </form>
                             </div>

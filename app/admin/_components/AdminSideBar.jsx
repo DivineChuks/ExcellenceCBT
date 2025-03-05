@@ -1,6 +1,7 @@
 "use client";
 import {
   BookOpen,
+  CircleHelp,
   CircleUser,
   ClipboardList,
   FileText,
@@ -30,25 +31,17 @@ const AdminSideBar = () => {
       case "/admin/dashboard":
         setActiveLink("dashboard");
         break;
-      case "/admin/students":
       case "/admin/students/view":
-      case "/admin/students/register":
         setActiveLink("students");
         break;
       case "/admin/subjects":
       case "/admin/subjects/add":
         setActiveLink("subjects");
         break;
-      case "/admin/questions":
-      case "/admin/questions/manage":
       case "/admin/questions/create":
         setActiveLink("questions");
         break;
-      case "/admin/exams":
-      case "/admin/exams/add":
-      case "/admin/questions/create":
-      case "/admin/exams/manage":
-      case "/admin/exams/results":
+      case "/admin/exams/view":
         setActiveLink("exams");
         break;
       case "/admin/settings":
@@ -87,7 +80,15 @@ const AdminSideBar = () => {
         />
 
         {/* Students */}
-        <SidebarMenu
+        <SidebarItem
+          icon={<CircleUser size={20} />}
+          label="Students"
+          href="/admin/students/view"
+          active={activeLink === "students"}
+        />
+
+        {/* Students */}
+        {/* <SidebarMenu
           icon={<CircleUser size={20} />}
           label="Students"
           isOpen={openMenus.students}
@@ -97,7 +98,7 @@ const AdminSideBar = () => {
             { label: "All Students", href: "/admin/students/view" },
             { label: "Register Students", href: "/admin/students/register" },
           ]}
-        />
+        /> */}
 
         <SidebarItem
           icon={<BookOpen size={20} />}
@@ -120,7 +121,21 @@ const AdminSideBar = () => {
         /> */}
 
         {/* Exams */}
-        <SidebarMenu
+
+        <SidebarItem
+          icon={<ClipboardList size={20} />}
+          label="Exams"
+          href="/admin/exams/view"
+          active={activeLink === "exams"}
+        />
+
+        <SidebarItem
+          icon={<CircleHelp size={20} />}
+          label="Add Questions"
+          href="/admin/questions/create"
+          active={activeLink === "questions"}
+        />
+        {/* <SidebarMenu
           icon={<ClipboardList size={20} />}
           label="Exams"
           isOpen={openMenus.exams}
@@ -129,9 +144,8 @@ const AdminSideBar = () => {
           subItems={[
             { label: "All Exams", href: "/admin/exams/view" },
             { label: "Add Questions", href: "/admin/questions/create" },
-            { label: "Student Results", href: "/admin/exams/results" },
           ]}
-        />
+        /> */}
 
         {/* Settings */}
         <SidebarItem

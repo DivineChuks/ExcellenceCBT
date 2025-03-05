@@ -157,6 +157,9 @@ const AllExams = () => {
                             <DropdownMenuItem onClick={() => router.push(`/admin/exams/manage/${row.original._id}`)}>
                                 Manage Exams
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/exams/results/${row.original._id}`)}>
+                                View Results
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => router.push(`/admin/exams/edit/${row.original._id}`)}>
                                 Edit
                             </DropdownMenuItem>

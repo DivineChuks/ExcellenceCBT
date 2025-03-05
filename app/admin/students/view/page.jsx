@@ -37,10 +37,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -99,10 +100,6 @@ const AllStudents = () => {
     };
 
     const columns = [
-        {
-            accessorKey: "id",
-            header: "ID",
-        },
         {
             accessorKey: "name",
             header: "Name",
@@ -189,7 +186,9 @@ const AllStudents = () => {
                             </div>
                         ) : (
                             <div className="p-6">
-                                <h1 className="text-2xl font-bold mb-6">All Students</h1>
+                                <Link href="/admin/students/register">
+                                    <button className="bg-blue-500 font-semibold px-6 py-2 flex gap-2 items-center rounded-md text-white mb-8"><PlusCircle />Register Student</button>
+                                </Link>
                                 <div className="rounded-md border">
                                     <Table>
                                         <TableHeader>
