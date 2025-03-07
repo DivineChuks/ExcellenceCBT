@@ -77,7 +77,7 @@ const CreateExam = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
+                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubjects`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",

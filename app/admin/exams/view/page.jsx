@@ -89,23 +89,6 @@ const AllExams = () => {
         fetchExams();
     }, []);
 
-    useEffect(() => {
-        const fetchSubjects = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    }
-                });
-                setSubjects(response.data);
-            } catch (error) {
-                console.error("Error fetching exams:", error);
-            }
-        };
-        fetchSubjects();
-    }, []);
-
 
     const handleDeleteExam = async (id) => {
         setIsDeleting(true)
@@ -160,9 +143,9 @@ const AllExams = () => {
                             <DropdownMenuItem onClick={() => router.push(`/admin/exams/results/${row.original._id}`)}>
                                 View Results
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push(`/admin/exams/edit/${row.original._id}`)}>
+                            {/* <DropdownMenuItem onClick={() => router.push(`/admin/exams/edit/${row.original._id}`)}>
                                 Edit
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem onClick={() => {
                                 setSelectedExamId(row.original._id);
                                 setIsDeleteOpen(true);

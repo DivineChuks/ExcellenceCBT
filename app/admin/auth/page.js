@@ -25,8 +25,8 @@ const loginSchema = z.object({
 
 const AdminLogin = () => {
   const [toggleIcon, setToggleIcon] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
   const dispatch = useDispatch()
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   // React Hook Form
@@ -49,7 +49,7 @@ const AdminLogin = () => {
 
   // Handle Form Submit
   const onSubmit = async (data) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const response = await axios.post(
         `${API_BASE_URL}/admin/auth/login`,

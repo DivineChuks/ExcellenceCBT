@@ -15,6 +15,7 @@ import TiptapEditor from "@/app/admin/dashboard/_components/TipTapEditor";
 import AdminSideBar from "@/app/admin/_components/AdminSideBar";
 import AdminNavBar from "@/app/admin/_components/AdminNavBar";
 import Image from "next/image";
+import RichTextEditor from "@/app/admin/dashboard/_components/Editor";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const token = localStorage.getItem("token");
@@ -98,7 +99,7 @@ const EditQuestion = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
+                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubjects`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setSubjects(response.data);
@@ -116,7 +117,6 @@ const EditQuestion = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success("Question updated successfully!");
-            router.push("/admin/questions");
         } catch (error) {
             console.error("Failed to update question:", error);
             toast.error("Error updating question.");
@@ -167,11 +167,14 @@ const EditQuestion = () => {
 
                         {/* Question */}
                         <div className="mb-4">
-                            <TiptapEditor
+                            {/* <TiptapEditor
                                 value={watch("question")}
                                 onChange={(value) => setValue("question", value)}
                                 reset={editorResetTrigger}
-                            />
+                            /> */}
+                            <RichTextEditor value={watch("question")}
+                                onChange={(value) => setValue("question", value)}
+                                reset={editorResetTrigger} />
                         </div>
 
                         {/* Options */}

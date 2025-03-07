@@ -7,22 +7,36 @@ const TiptapEditor = ({ value, onChange, reset }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        keyboardShortcuts: {
+          Enter: () => false, // Prevent Enter key from being overridden
+          Tab: () => false, // Ensure Tab works as expected
+          ArrowRight: () => false, // Prevent Next key from going back
+          ArrowLeft: () => false, // Prevent Back key from overriding navigation
+        },
+      }),
+    ],
     content: value || "",
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML()); // Preserve formatting
+      onChange(editor.getHTML());
     },
     onCreate: () => {
       setIsEditorReady(true);
     },
+    editorProps: {
+      // Add explicit handling for key presses to ensure space works
+      handleKeyDown: (view, event) => {
+        // Let the default handler process space and other keys
+        return false;
+      }
+    }
   });
 
-  // Update editor content when `value` changes and editor is ready
   useEffect(() => {
     if (editor && isEditorReady && value) {
-      setTimeout(() => {
-        editor.commands.setContent(value, true);
-      }, 100);
+      // Use a more reliable way to set content
+      editor.commands.setContent(value, true);
     }
   }, [value, editor, isEditorReady]);
 

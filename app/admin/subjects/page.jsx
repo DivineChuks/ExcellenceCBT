@@ -63,7 +63,7 @@ const AllSubjects = () => {
         const fetchSubjects = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
+                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubjects`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",

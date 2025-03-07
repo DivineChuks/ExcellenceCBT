@@ -15,6 +15,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useRouter, useParams } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -104,7 +106,7 @@ const EditStudent = () => {
                     }
                 }
             );
-            alert("Student updated successfully!");
+            toast.success("Student updated successfully!");
             router.push("/admin/students");
         } catch (error) {
             console.error("Error updating student:", error);
@@ -208,6 +210,7 @@ const EditStudent = () => {
                     </Container>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

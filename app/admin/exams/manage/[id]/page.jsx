@@ -59,7 +59,7 @@ const ManageExams = () => {
 
                 setCurrentPage(
                     Object.keys(groupedData).reduce((acc, subject) => {
-                        acc[subject] = 1; // Start from page 1 for each subject
+                        acc[subject] = 1;
                         return acc;
                     }, {})
                 );
@@ -147,7 +147,7 @@ const ManageExams = () => {
                                                             <div key={question._id} className="p-4 border-b flex justify-between">
                                                                 <div>
                                                                     <p className="font-semibold">
-                                                                        {index + 1 + startIndex}. {question.question}
+                                                                        {index + 1 + startIndex}. {question.question.replace(/<[^>]+>/g, "")}
                                                                     </p>
                                                                     <ul className="text-sm text-gray-600 mt-2">
                                                                         <li>A: {question.options.optionA}</li>

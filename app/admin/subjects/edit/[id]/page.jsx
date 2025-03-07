@@ -13,13 +13,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter, useParams } from "next/navigation";
 import AdminNavBar from "../../../_components/AdminNavBar";
 import AdminSideBar from "@/app/admin/_components/AdminSideBar";
+import Image from "next/image";
 
 // API Base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Zod Schema for Validation
 const subjectSchema = z.object({
-    name: z.string().min(3, { message: "Subject name must be at least 3 characters" }),
+    title: z.string().min(3, { message: "Subject title must be at least 3 characters" }),
     code: z.string().min(3, { message: "Subject code must be at least 3 characters" }),
     description: z.string().optional(),
 });
@@ -39,7 +40,7 @@ const EditSubject = () => {
     } = useForm({
         resolver: zodResolver(subjectSchema),
         defaultValues: {
-            name: "",
+            title: "",
             code: "",
             description: "",
         },
@@ -52,14 +53,14 @@ const EditSubject = () => {
         const fetchSubject = async () => {
             try {
                 const response = await axios.get(
-                    `${API_BASE_URL}/admin/subject/getSubject/${id}`,
+                    `${API_BASE_URL}/admin/subject/getSubjects/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     }
                 );
-                reset(response.data); // Pre-fill form with fetched data
+                reset(response.data.results); // Pre-fill form with fetched data
             } catch (error) {
                 console.error("Error fetching subject data:", error);
                 toast.error("Failed to fetch subject data.");
@@ -87,7 +88,6 @@ const EditSubject = () => {
             );
 
             toast.success("Subject updated successfully!");
-            router.push("/admin/subjects");
         } catch (error) {
             console.error("Error updating subject:", error);
             toast.error("Failed to update subject. Please try again.");
@@ -120,13 +120,13 @@ const EditSubject = () => {
                                                 Subject Name
                                             </label>
                                             <Input
-                                                {...register("name")}
-                                                placeholder="Enter subject name"
+                                                {...register("title")}
+                                                placeholder="Enter subject title"
                                                 className="mt-1"
                                             />
                                             {errors.name && (
                                                 <p className="text-red-500 text-sm mt-1">
-                                                    {errors.name.message}
+                                                    {errors.title.message}
                                                 </p>
                                             )}
                                         </div>
@@ -163,10 +163,16 @@ const EditSubject = () => {
                                         {/* Submit Button */}
                                         <Button
                                             type="submit"
-                                            className="w-full bg-blue-500 hover:bg-blue-600"
+                                            className="w-full bg-blue-500 hover:bg-blue-600 font-semibold py-2 "
                                             disabled={loading}
                                         >
-                                            {loading ? "Updating..." : "Update Subject"}
+                                            {loading ? <Image
+                                                src="/loader.gif"
+                                                className="text-white"
+                                                alt="loader"
+                                                width={20}
+                                                height={20}
+                                            /> : "Update Subject"}
                                         </Button>
                                     </form>
                                 )}

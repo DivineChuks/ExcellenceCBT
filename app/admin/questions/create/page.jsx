@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import TiptapEditor from "../../dashboard/_components/TipTapEditor";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RichTextEditor from "../../dashboard/_components/Editor"
+import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const token = localStorage.getItem("token");
@@ -78,7 +80,7 @@ const AddQuestion = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubject`, {
+                const response = await axios.get(`${API_BASE_URL}/admin/subject/getSubjects`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
@@ -96,6 +98,7 @@ const AddQuestion = () => {
 
     // Handle form submission
     const onSubmit = async (data) => {
+        setLoading(true)
         try {
             await axios.post(`${API_BASE_URL}/admin/exams/addQuestions`, data, {
                 headers: {
@@ -127,6 +130,8 @@ const AddQuestion = () => {
         } catch (error) {
             console.error("Failed to add question:", error);
             alert("Error adding question. Try again.");
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -178,7 +183,12 @@ const AddQuestion = () => {
                             {/* Question */}
                             <div className="mb-4">
                                 <label className="block text-gray-700 mb-2">Question</label>
-                                <TiptapEditor value={watch("question")} onChange={(value) => setValue("question", value)} reset={editorResetTrigger} />
+                                <RichTextEditor
+                                    value={watch("question")}
+                                    onChange={(content) => setValue("question", content)}
+                                    reset={editorResetTrigger}
+                                    placeholder="Type your question here..."
+                                />
                                 {errors.question && <p className="text-red-500 text-sm">{errors.question.message}</p>}
                             </div>
 
@@ -213,7 +223,15 @@ const AddQuestion = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <Button type="submit" className="w-full bg-blue-500 text-base font-semibold py-2 hover:bg-blue-400">Add Question</Button>
+                            <Button disabled={loading} type="submit" className="w-full bg-blue-500 text-base font-semibold py-2 hover:bg-blue-400">{loading ? (
+                                <Image
+                                    src="/loader.gif"
+                                    className="text-white"
+                                    alt="loader"
+                                    width={20}
+                                    height={20}
+                                />
+                            ) : "Add Question"}</Button>
                         </form>
                     </Container>
                 </div>
