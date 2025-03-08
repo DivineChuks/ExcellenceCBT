@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -56,7 +57,7 @@ const EditStudent = () => {
         const fetchStudent = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${API_BASE_URL}/admin/student/getStudent/${id}`, {
+                const response = await axios.get(`${API_BASE_URL}/admin/students/getStudent/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
@@ -79,14 +80,22 @@ const EditStudent = () => {
         }
     }, [id, setValue]);
 
-    // Fetch exams for the select dropdown
+    // Fetch available exams
     useEffect(() => {
         const fetchExams = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/admin/exams`);
-                setExams(response.data.exams);
+                setLoading(true);
+                const response = await axios.get(`${API_BASE_URL}/admin/exams/getExams`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    }
+                });
+                setExams(response.data.findExams);
             } catch (error) {
-                console.error("Error fetching exams:", error);
+                console.error("Failed to fetch exams:", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchExams();
@@ -97,7 +106,7 @@ const EditStudent = () => {
         setLoading(true);
         try {
             await axios.put(
-                `${API_BASE_URL}/admin/student/editStudent/${id}`,
+                `${API_BASE_URL}/admin/students/editStudent/${id}`,
                 data,
                 {
                     headers: {
@@ -107,7 +116,7 @@ const EditStudent = () => {
                 }
             );
             toast.success("Student updated successfully!");
-            router.push("/admin/students");
+            router.push("/admin/students/view")
         } catch (error) {
             console.error("Error updating student:", error);
         } finally {
@@ -175,34 +184,39 @@ const EditStudent = () => {
                                     </div>
 
                                     {/* Select Exam */}
-                                    {exams.length > 0 && (
-                                        <div className="mb-4">
-                                            <label className="block text-gray-700 mb-2">Select Exam</label>
-                                            <Select
-                                                onValueChange={(value) => setValue("examId", value)}
-                                                defaultValue=""
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select Exam" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {exams.map((exam) => (
-                                                        <SelectItem key={exam.id} value={exam.id}>
-                                                            {exam.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    )}
+                                    {exams.length > 0 && (<div className="mb-4">
+                                        <label className="block text-gray-700 mb-2">Choose Exam</label>
+                                        <Select
+                                            onValueChange={(value) => setValue("examId", value)}
+                                            defaultValue=""
+                                        >
+                                            <SelectTrigger className="w-full py-4">
+                                                <SelectValue placeholder="Select Exam" className="text-red-500" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {exams.map((exam) => (
+                                                    <SelectItem key={exam._id} value={exam._id}>
+                                                        {exam.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                    </div>)}
 
                                     {/* Submit Button */}
                                     <Button
                                         type="submit"
-                                        className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base text-semibold text-white"
+                                        className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base font-semibold text-white"
                                         disabled={loading}
                                     >
-                                        {loading ? "Updating..." : "Update"}
+                                        {loading ? <Image
+                                            src="/loader.gif"
+                                            className="text-white"
+                                            alt="loader"
+                                            width={20}
+                                            height={20}
+                                        /> : "Update"}
                                     </Button>
                                 </form>
                             </div>

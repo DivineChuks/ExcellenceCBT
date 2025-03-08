@@ -106,28 +106,6 @@ const AdminDashboard = () => {
                       <Bar data={barData} options={barOptions} />
                     </div>
                   </div>
-
-                  {/* Recent Activities */}
-                  <div className="mt-10 bg-white p-4 rounded-md shadow-md">
-                    <h2 className="font-bold text-lg mb-4">Recent Activities</h2>
-                    <ul className="space-y-2">
-                      <li className="flex items-center justify-between">
-                        <span>John Doe registered for Chemistry</span>
-                        <span className="text-gray-500 text-sm">2 hours ago</span>
-                      </li>
-                      <li className="flex items-center justify-between">
-                        <span>New exam added: Biology Test 1</span>
-                        <span className="text-gray-500 text-sm">1 day ago</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-10">
-                    <QuickActionCard title="Register a Student" />
-                    <QuickActionCard title="Add a Subject" />
-                    <QuickActionCard title="Create New Exam" />
-                  </div>
                 </main>
               )}
             </Container>

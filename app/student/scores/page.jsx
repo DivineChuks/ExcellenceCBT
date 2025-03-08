@@ -74,45 +74,6 @@ const Scores = () => {
                                 </Table>
                             </CardContent>
                         </Card>
-                        {/* Charts Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Pie Chart */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Pass/Fail Percentage</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex justify-center">
-                                    <ResponsiveContainer width="100%" height={250}>
-                                        <PieChart>
-                                            <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="value">
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-
-                            {/* Bar Chart */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Subject Performance</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ResponsiveContainer width="100%" height={250}>
-                                        <BarChart data={barData}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="subject" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Bar dataKey="score" fill="#4F46E5" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </div>
                     </div>
                     {/* Progress Section */}
                     <Card>

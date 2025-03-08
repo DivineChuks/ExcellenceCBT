@@ -9,6 +9,8 @@ import {
   BookOpen,
   LogOut,
   Settings,
+  BarChart,
+  UserCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,20 +23,17 @@ const StudentSideBar = () => {
 
   useEffect(() => {
     switch (pathname) {
-      case "/student/dashboard":
-        setActiveLink("dashboard");
+      case "/student/performance":
+        setActiveLink("performance");
         break;
-      case "/student/take-test":
-        setActiveLink("take-test");
+      case "/student/take-exam":
+        setActiveLink("take-exam");
         break;
       case "/student/practice-questions":
         setActiveLink("practice-questions");
         break;
       case "/student/scores":
         setActiveLink("scores");
-        break;
-      case "/student/settings":
-        setActiveLink("settings");
         break;
       default:
         setActiveLink("");
@@ -57,20 +56,12 @@ const StudentSideBar = () => {
 
       {/* Menu */}
       <div className="mt-10 flex flex-col gap-6">
-        {/* Dashboard */}
-        <SidebarItem
-          icon={<LayoutDashboard size={20} />}
-          label="Dashboard"
-          href="/student/dashboard"
-          active={activeLink === "dashboard"}
-        />
-
         {/* Take a Test */}
         <SidebarItem
           icon={<ClipboardList size={20} />}
-          label="Take a Test"
-          href="/student/take-test"
-          active={activeLink === "take-test"}
+          label="Take Exam"
+          href="/student/take-exam"
+          active={activeLink === "take-exam"}
         />
 
         {/* Practice Questions */}
@@ -83,18 +74,18 @@ const StudentSideBar = () => {
 
         {/* My Scores */}
         <SidebarItem
-          icon={<BarChart3 size={20} />}
-          label="My Scores"
+          icon={<UserCircle size={20} />}
+          label="My Profile"
           href="/student/scores"
           active={activeLink === "scores"}
         />
 
-        {/* Settings */}
+        {/* Activities */}
         <SidebarItem
-          icon={<Settings size={20} />}
-          label="Settings"
-          href="/student/settings"
-          active={activeLink === "settings"}
+          icon={<BarChart size={20} />}
+          label="Performance"
+          href="/student/performance"
+          active={activeLink === "performance"}
         />
       </div>
 

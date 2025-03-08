@@ -26,7 +26,7 @@ const AdminDashboard = () => {
       {
         label: "Pass/Fail Rates",
         data: [70, 30], // Example data
-        backgroundColor: ["#4CAF50", "#FF5722"], 
+        backgroundColor: ["#4CAF50", "#FF5722"],
         borderWidth: 1,
       },
     ],
@@ -64,11 +64,8 @@ const AdminDashboard = () => {
             <div className="">
               <div className="flex flex-col gap-2">
                 <h2 className="font-bold text-xl hidden md:flex">
-                  Welcome Excellence
+                  Performance
                 </h2>
-                <p className="text-base text-gray-500">
-                  This is your profile page
-                </p>
               </div>
             </div>
             {loading ? (
@@ -91,10 +88,10 @@ const AdminDashboard = () => {
                 </div> */}
 
                 {/* Charts */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
-                  <div className="bg-white p-4 rounded-md shadow-md">
+                <div className="grid grid-cols-1 gap-10 mt-10">
+                  <div className="bg-white p-8 rounded-md shadow-md">
                     <h2 className="font-bold text-lg mb-4">Pass/Fail Rates</h2>
-                    <div className="w-64 h-64 mx-auto">
+                    <div className="w-80 h-80 mx-auto">
                       <Pie data={pieData} />
                     </div>
                   </div>
@@ -104,23 +101,8 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Recent Activities */}
-                <div className="mt-10 bg-white p-4 rounded-md shadow-md">
-                  <h2 className="font-bold text-lg mb-4">Recent Activities</h2>
-                  <ul className="space-y-2">
-                    <li className="flex items-center justify-between">
-                      <span>John Doe registered for Chemistry</span>
-                      <span className="text-gray-500 text-sm">2 hours ago</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span>New exam added: Biology Test 1</span>
-                      <span className="text-gray-500 text-sm">1 day ago</span>
-                    </li>
-                  </ul>
-                </div>
-
                 {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16">
                   {/* <QuickActionCard title="Register a Student" />
                   <QuickActionCard title="Add a Subject" />
                   <QuickActionCard title="Create New Exam" /> */}

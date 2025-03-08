@@ -83,14 +83,14 @@ const AllStudents = () => {
     const handleDeleteStudent = async (id) => {
         setIsDeleting(true);
         try {
-            await axios.delete(`${API_BASE_URL}/admin/student/deleteStudent/${id}`, {
+            await axios.delete(`${API_BASE_URL}/admin/students/deleteStudent/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
             // Remove the deleted student from the state
-            setStudents((prevStudents) => prevStudents.filter((student) => student.id !== id));
+            setStudents((prevStudents) => prevStudents.filter((student) => student._id !== id));
             setIsDialogOpen(false);
         } catch (error) {
             console.error("Failed to delete student:", error);

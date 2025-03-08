@@ -64,7 +64,7 @@ const StudentNavBar = () => {
           {isMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg py-2 z-50">
               <a
-                href="/admin/profile"
+                href="/students/scores"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 My Profile
