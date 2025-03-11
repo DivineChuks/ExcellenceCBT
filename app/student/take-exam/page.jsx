@@ -248,9 +248,9 @@ const ExamPage = () => {
                 <StudentNavBar />
                 <div className="px-8 py-6">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center gap-4 p-4">
-                            <Skeleton className="h-24 w-full" />
-                            <Skeleton className="h-24 w-full" />
+                        <div className="flex flex-col items-center justify-center gap-4 p-2">
+                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
                         </div>
                     ) : !started ? (
                         <ExamStart onStart={() => setStarted(true)} examData={examData} />
@@ -352,7 +352,7 @@ const ExamPage = () => {
 
                                         {isLastPage() ? (
                                             <Button
-                                                className="bg-green-500 font-bold hover:bg-green-400"
+                                                className="bg-green-600 font-bold hover:bg-green-500 py-6 rounded-md px-6"
                                                 onClick={() => setShowSubmitDialog(true)}
                                             >
                                                 Submit Exam
@@ -368,7 +368,7 @@ const ExamPage = () => {
 
                             {/* Question Navigation Grids - Separated by Subject */}
                             <div className="mt-6">
-                                <h3 className="mb-2 font-medium mb-4">Question Navigator</h3>
+                                <h3 className="font-medium mb-4">Question Navigator</h3>
 
                                 {subjectKeys.length > 0 && (
                                     <div className="mb-4">
