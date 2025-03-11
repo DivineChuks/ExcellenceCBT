@@ -21,6 +21,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminSideBar from "@/app/admin/_components/AdminSideBar";
 import AdminNavBar from "@/app/admin/_components/AdminNavBar";
 import Image from "next/image";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const token = localStorage.getItem("token");
@@ -204,7 +206,12 @@ const ManageExams = () => {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <p className="text-gray-600 text-center">No questions available for this subject.</p>
+                                    <div>
+                                        <p className="text-gray-600 flex justify-center item-center text-center">No questions available for this exam.</p>
+                                        <Link href="/admin/questions/create">
+                                            <button className="bg-blue-500 px-6 py-2 mt-6 mx-auto flex gap-2 items-center rounded-md text-white mb-8"><PlusCircle />Add Questions</button>
+                                        </Link>
+                                    </div>
                                 )}
                             </>
                         )}

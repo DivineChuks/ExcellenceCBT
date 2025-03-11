@@ -33,7 +33,7 @@ const ExamStart = ({ onStart }) => {
                                     className={`w-full py-2 mt-2 text-white rounded-md px-6 text-lg transition-all ${hovered ? "bg-blue-700" : "bg-blue-600"}`}
                                     onClick={onStart}
                                 >
-                                    Start Exam
+                                    Begin Exam
                                 </button>
                             </motion.div>
                         </div>

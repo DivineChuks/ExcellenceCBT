@@ -18,10 +18,34 @@ import {
 import { Bell, ClipboardList, PieChart, User } from "lucide-react";
 import { QuickActionCard } from "./_components/QuickActionCard";
 import PrivateAdminRoute from "./_components/PrivateAdminRoute"
+import axios from "axios";
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(false)
+  const [admin, setAdmin] = useState([])
+  const token = localStorage.getItem("token")
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${API_BASE_URL}/admin/dashboard`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                }
+            });
+            setAdmin(response.data);
+        } catch (error) {
+            console.error("Failed to fetch students:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchAdmin();
+}, []);
 
   const pieData = {
     labels: ["Pass", "Fail"],

@@ -65,12 +65,12 @@ const StudentSideBar = () => {
         />
 
         {/* Practice Questions */}
-        <SidebarItem
+        {/* <SidebarItem
           icon={<BookOpen size={20} />}
           label="Practice Questions"
           href="/student/practice-questions"
           active={activeLink === "practice-questions"}
-        />
+        /> */}
 
         {/* My Scores */}
         <SidebarItem

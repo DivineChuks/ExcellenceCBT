@@ -12,16 +12,18 @@ import {
 } from "redux-persist";
 
 import adminReducer from "./slices/adminSlice";
+import userReducer from "./slices/userSlice"
 
 const rootReducer = combineReducers({
   admin: adminReducer,
+  user: userReducer
 });
 
 const persistConfig = {
   key: "root",
   storage,
   whitelist: [
-    "admin",
+    "admin", "user"
   ],
 };
 

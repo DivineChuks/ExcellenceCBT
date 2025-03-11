@@ -115,6 +115,22 @@ const EditStudent = () => {
                     }
                 }
             );
+            // If an exam is selected, assign the exam to the student
+            if (data.examId) {
+                await axios.post(
+                    `${API_BASE_URL}/admin/exams/assign`,
+                    {
+                        studentId: id,
+                        examId: data.examId
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        }
+                    }
+                );
+            }
             toast.success("Student updated successfully!");
             router.push("/admin/students/view")
         } catch (error) {
