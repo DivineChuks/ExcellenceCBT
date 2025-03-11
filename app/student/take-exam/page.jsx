@@ -33,7 +33,7 @@ const ExamPage = () => {
     const [currentSubjectIndex, setCurrentSubjectIndex] = useState(0);
     const [subjectKeys, setSubjectKeys] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const questionsPerPage = 2;
+    const questionsPerPage = 1;
     const [questionsBySubject, setQuestionsBySubject] = useState({});
     const [totalQuestionsAnswered, setTotalQuestionsAnswered] = useState(0);
     const [totalQuestions, setTotalQuestions] = useState(0);
@@ -251,10 +251,9 @@ const ExamPage = () => {
                         <div className="flex flex-col items-center justify-center gap-4 p-4">
                             <Skeleton className="h-24 w-full" />
                             <Skeleton className="h-24 w-full" />
-                            <Skeleton className="h-24 w-full" />
                         </div>
                     ) : !started ? (
-                        <ExamStart onStart={() => setStarted(true)} />
+                        <ExamStart onStart={() => setStarted(true)} examData={examData} />
                     ) : Object.keys(questionsBySubject).length === 0 ? (
                         <p className="text-center mt-10">No questions available.</p>
                     ) : (
@@ -368,77 +367,37 @@ const ExamPage = () => {
                             )}
 
                             {/* Question Navigation Grids - Separated by Subject */}
-                            {/* <div className="mt-6">
-                                <h3 className="mb-2 font-medium">Question Navigator</h3>
-                                {subjectKeys.map((subjectKey) => {
-                                    const subject = questionsBySubject[subjectKey];
-                                    return (
-                                        <div key={subjectKey} className="mb-4">
-                                            <h4 className="text-sm font-medium mb-1">{subject.title}</h4>
-                                            <div className="grid grid-cols-10 gap-2">
-                                                {subject.questions.map((question, index) => {
-                                                    const hasAnswer = answers[question._id];
-                                                    const isCurrentSubject = subjectKey === subjectKeys[currentSubjectIndex];
-                                                    const isCurrentQuestion = 
-                                                        isCurrentSubject && 
-                                                        index >= currentPage * questionsPerPage && 
-                                                        index < (currentPage * questionsPerPage) + questionsPerPage;
-                                                        
-                                                    return (
-                                                        <button
-                                                            key={question._id}
-                                                            className={`p-2 border rounded ${
-                                                                isCurrentQuestion 
-                                                                    ? "bg-blue-500 text-white" 
-                                                                    : hasAnswer 
-                                                                        ? "bg-green-500 text-white" 
-                                                                        : "bg-gray-200"
-                                                            }`}
-                                                            onClick={() => handleJumpToQuestion(subjectKey, index)}
-                                                        >
-                                                            {index + 1}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div> */}
                             <div className="mt-6">
-                                {/* <h3 className="mb-2 font-medium">Question Navigator</h3> */}
-                                <div className="grid grid-cols-10 gap-2">
-                                    {subjectKeys.flatMap((subjectKey, subjectIdx) => {
-                                        const subject = questionsBySubject[subjectKey];
-                                        return subject.questions.map((question, questionIdx) => {
-                                            const hasAnswer = answers[question._id];
-                                            const globalQuestionIndex = subjectIdx * subject.questions.length + questionIdx;
-                                            const targetSubjectIndex = Math.floor(globalQuestionIndex / subject.questions.length);
-                                            const targetQuestionIndex = globalQuestionIndex % subject.questions.length;
+                                <h3 className="mb-2 font-medium mb-4">Question Navigator</h3>
 
-                                            const isCurrentQuestion =
-                                                currentSubjectIndex === targetSubjectIndex &&
-                                                questionIdx >= currentPage * questionsPerPage &&
-                                                questionIdx < (currentPage * questionsPerPage) + questionsPerPage;
+                                {subjectKeys.length > 0 && (
+                                    <div className="mb-4">
+                                        <div className="grid grid-cols-10 gap-2">
+                                            {questionsBySubject[subjectKeys[currentSubjectIndex]].questions.map((question, index) => {
+                                                const hasAnswer = answers[question._id];
+                                                const isCurrentQuestion = index === currentPage; // Since we show one question per page
 
-                                            return (
-                                                <button
-                                                    key={question._id}
-                                                    className={`p-2 border rounded ${isCurrentQuestion
-                                                            ? "bg-blue-500 text-white"
-                                                            : hasAnswer
-                                                                ? "bg-green-500 text-white"
-                                                                : "bg-gray-200"
-                                                        }`}
-                                                    onClick={() => handleJumpToQuestion(subjectKey, questionIdx)}
-                                                >
-                                                    {globalQuestionIndex + 1}
-                                                </button>
-                                            );
-                                        });
-                                    })}
-                                </div>
+                                                return (
+                                                    <button
+                                                        key={question._id}
+                                                        className={`p-2 border rounded ${isCurrentQuestion
+                                                                ? "bg-blue-500 text-white" // Highlight current question
+                                                                : hasAnswer
+                                                                    ? "bg-green-500 text-white" // Mark answered questions
+                                                                    : "bg-gray-200"
+                                                            }`}
+                                                        onClick={() => handleJumpToQuestion(subjectKeys[currentSubjectIndex], index)}
+                                                    >
+                                                        {index + 1}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+
+
                         </>
                     )}
                 </div>
