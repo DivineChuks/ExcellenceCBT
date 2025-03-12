@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, Clock3, ChevronLeft, ChevronRight } from "lucide-react";
+import { LogOut, Clock3, ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import StudentSideBar from "../_components/StudentSideBar";
 import StudentNavBar from "../_components/StudentNavBar";
 import ExamStart from "./ExamStart";
@@ -239,7 +239,22 @@ const ExamPage = () => {
         return questionIndex + 1; // Fallback
     };
 
-    if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
+    if (loading) {
+        return (
+            <div className="flex md:pl-8 min-h-screen">
+                <StudentSideBar />
+                <div className="flex flex-col w-full">
+                    <StudentNavBar />
+                    <div className="flex justify-center items-center h-screen">
+                        <div className="flex flex-col items-center">
+                            <Loader className="animate-spin h-8 w-8 text-gray-500" />
+                            <p className="mt-4 text-gray-600">Loading exams...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex md:pl-8 min-h-screen">
@@ -247,12 +262,7 @@ const ExamPage = () => {
             <div className="flex flex-col w-full">
                 <StudentNavBar />
                 <div className="px-8 py-6">
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center gap-4 p-2">
-                            <Skeleton className="h-16 w-full" />
-                            <Skeleton className="h-16 w-full" />
-                        </div>
-                    ) : !started ? (
+                    {!started ? (
                         <ExamStart onStart={() => setStarted(true)} examData={examData} />
                     ) : Object.keys(questionsBySubject).length === 0 ? (
                         <p className="text-center mt-10">No questions available.</p>
@@ -381,10 +391,10 @@ const ExamPage = () => {
                                                     <button
                                                         key={question._id}
                                                         className={`p-2 border rounded ${isCurrentQuestion
-                                                                ? "bg-blue-500 text-white" // Highlight current question
-                                                                : hasAnswer
-                                                                    ? "bg-green-500 text-white" // Mark answered questions
-                                                                    : "bg-gray-200"
+                                                            ? "bg-blue-500 text-white" // Highlight current question
+                                                            : hasAnswer
+                                                                ? "bg-green-500 text-white" // Mark answered questions
+                                                                : "bg-gray-200"
                                                             }`}
                                                         onClick={() => handleJumpToQuestion(subjectKeys[currentSubjectIndex], index)}
                                                     >
