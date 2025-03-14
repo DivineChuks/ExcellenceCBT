@@ -12,6 +12,7 @@ import SubmitExamModal from "../_components/SubmitExamModal"
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -28,6 +29,7 @@ const ExamPage = () => {
     const [error, setError] = useState(null);
     const [examData, setExamData] = useState(null);
     const userId = useSelector((state) => state.user.user.userId);
+    const router = useRouter()
 
     // Subject pagination state
     const [currentSubjectIndex, setCurrentSubjectIndex] = useState(0);
@@ -181,6 +183,7 @@ const ExamPage = () => {
     const handleFinalSubmit = () => {
         setShowSubmitDialog(false);
         setModal(true)
+        // router.push("/student/auth")
     }
 
     const formatTime = (seconds) => {

@@ -23,7 +23,7 @@ export default function SubmitExamModal({ modal, onClose }) {
     const handleClose = () => {
         onClose()
         localStorage.clear()
-        router.push("/")
+        router.push("/student/auth")
     }
 
     return (
