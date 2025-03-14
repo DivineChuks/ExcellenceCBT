@@ -24,6 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 const RegisterStudent = () => {
     const [loading, setLoading] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false)
     const [exams, setExams] = useState([]);
     const router = useRouter();
     const token = localStorage.getItem("token")
@@ -75,7 +76,7 @@ const RegisterStudent = () => {
 
 
     const onSubmit = async (data) => {
-        setLoading(true);
+        setIsRegistering(true);
         try {
             const response = await axios.post(
                 `${API_BASE_URL}/admin/students/register`, data, {
@@ -90,7 +91,7 @@ const RegisterStudent = () => {
         } catch (error) {
             console.error("Error registering student:", error);
         } finally {
-            setLoading(false);
+            setIsRegistering(false);
         }
     };
 
@@ -155,7 +156,7 @@ const RegisterStudent = () => {
                                     </div>
 
                                     {/* Select Exam */}
-                                    {exams.length > 0 && (<div className="mb-4">
+                                    {/* {exams.length > 0 && (<div className="mb-4">
                                         <label className="block text-gray-700 mb-2">Choose Exam</label>
                                         <Select
                                             onValueChange={(value) => setValue("examId", value)}
@@ -173,15 +174,15 @@ const RegisterStudent = () => {
                                             </SelectContent>
                                         </Select>
 
-                                    </div>)}
+                                    </div>)} */}
 
                                     {/* Submit Button */}
                                     <Button
                                         type="submit"
                                         className="mt-6 w-full bg-blue-500 py-2 hover:bg-blue-400 text-base font-semibold text-white"
-                                        disabled={loading}
+                                        disabled={isRegistering}
                                     >
-                                        {loading ? <Image
+                                        {isRegistering ? <Image
                                             src="/loader.gif"
                                             className="text-white"
                                             alt="loader"

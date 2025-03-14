@@ -1,6 +1,6 @@
 
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -32,67 +32,124 @@ const token = localStorage.getItem("token");
 const ExamResultTable = () => {
   const { id } = useParams(); // Get Exam ID from URL
   const [data, setData] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchResults = async () => {
       try {
-        const results = await axios.get(`${API_BASE_URL}/admin/exams/result/${id}`, {
+        // Get token from localStorage inside the useEffect to avoid SSR issues
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(`${API_BASE_URL}/admin/exams/result/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
 
-        console.log("results--->", results)
-        setData(
-          results.data?.map((result) => ({
-            studentId: result.studentId,
-            name: result.studentName,
-            totalScore: result.totalScore,
-            totalCorrect: result.totalCorrect,
-            totalAnswers: result.totalAnswers,
-            percentage: ((result.totalScore / result.totalAnswers) * 100).toFixed(2) + "%",
-          }))
-        );
+        console.log("API Response:", res.data);
+
+        if (!res.data?.subjects || !Array.isArray(res.data.subjects)) {
+          console.error("Invalid response format:", res.data);
+          setData([]);
+          setLoading(false);
+          return;
+        }
+
+        // Extract unique subjects
+        const subjectsList = res.data.subjects.map(item => item.subject.toUpperCase());
+        const uniqueSubjects = [...new Set(subjectsList)];
+        setSubjects(uniqueSubjects);
+
+        // Create a map of students and their scores
+        const studentMap = new Map();
+
+        // Process each subject and its results
+        res.data.subjects.forEach(subjectData => {
+          const subject = subjectData.subject.toUpperCase();
+
+          // Process each student result
+          subjectData.results.forEach(result => {
+            const studentName = result.student;
+            const score = result.score;
+
+            // If student doesn't exist in map, add them
+            if (!studentMap.has(studentName)) {
+              studentMap.set(studentName, {
+                name: studentName,
+                scores: {},
+                totalScore: 0,
+                totalPossible: 0
+              });
+            }
+
+            // Add this subject score to the student's record
+            const student = studentMap.get(studentName);
+            student.scores[subject] = score;
+            student.totalScore += score;
+          });
+        });
+
+        // Calculate maximum possible score per subject
+        // For simplicity, we'll assume each subject has an equal weight
+        // You may need to adjust this logic based on your actual requirements
+        const maxScorePerSubject = 100; // Example value
+
+        // Convert the map to an array and calculate percentages
+        const studentsArray = Array.from(studentMap.values()).map(student => {
+          const subjectsAttempted = Object.keys(student.scores).length;
+          const totalPossible = subjectsAttempted * maxScorePerSubject;
+          const percentage = totalPossible > 0
+            ? ((student.totalScore / totalPossible) * 100).toFixed(2) + "%"
+            : "0.00%";
+
+          return {
+            ...student,
+            percentage
+          };
+        });
+
+        setData(studentsArray);
       } catch (error) {
         console.error("Error fetching results:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchResults();
+
+    if (id) {
+      fetchResults();
+    }
   }, [id]);
 
-  const columns = [
-    {
-      accessorKey: "studentId",
-      header: "Student ID",
-      cell: ({ row }) => <div>{row.getValue("studentId")}</div>,
-    },
+
+  const columns = React.useMemo(() => [
     {
       accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      header: "Student Name",
+      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
     },
-    {
-      accessorKey: "totalAnswers",
-      header: "Total Questions",
-      cell: ({ row }) => <div>{row.getValue("totalAnswers")}</div>,
-    },
-    {
-      accessorKey: "totalScore",
-      header: "Total Score",
-      cell: ({ row }) => <div className="font-semibold">{row.getValue("totalScore")}</div>,
-    },
+    // Dynamically add a column for each subject
+    ...subjects.map(subject => ({
+      accessorKey: `scores.${subject}`,
+      header: subject,
+      cell: ({ row }) => {
+        const score = row.original.scores[subject];
+        return <div className="">{score !== undefined ? score : "-"}</div>;
+      },
+    })),
     {
       accessorKey: "percentage",
-      header: "Score Percentage",
+      header: "Overall Score (%)",
       cell: ({ row }) => (
-        <div className="font-semibold text-blue-600">{row.getValue("percentage")}</div>
+        <div className="font-semibold text-blue-600">
+          {row.getValue("percentage")}
+        </div>
       ),
     },
-  ];
+  ], [subjects]);
+
 
   const table = useReactTable({
     data,

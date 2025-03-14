@@ -24,6 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const EditStudent = () => {
     const [loading, setLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false)
     const [exams, setExams] = useState([]);
     const router = useRouter();
     const { id } = useParams(); // Get the student ID from the route
@@ -103,7 +104,7 @@ const EditStudent = () => {
 
     // Handle form submission
     const onSubmit = async (data) => {
-        setLoading(true);
+        setIsEditing(true);
         try {
             await axios.put(
                 `${API_BASE_URL}/admin/students/editStudent/${id}`,
@@ -136,7 +137,7 @@ const EditStudent = () => {
         } catch (error) {
             console.error("Error updating student:", error);
         } finally {
-            setLoading(false);
+            setIsEditing(false);
         }
     };
 
@@ -224,12 +225,12 @@ const EditStudent = () => {
                                     <Button
                                         type="submit"
                                         className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base font-semibold text-white"
-                                        disabled={loading}
+                                        disabled={isEditing}
                                     >
-                                        {loading ? <Image
+                                        {isEditing ? <Image
                                             src="/loader.gif"
                                             className="text-white"
-                                            alt="loader"
+                                            alt="loader" 
                                             width={20}
                                             height={20}
                                         /> : "Update"}
