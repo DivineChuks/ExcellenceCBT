@@ -19,7 +19,7 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(5, { message: 'Registration number must be at least 5 characters' })
-    .max(10, { message: 'Registration number must not exceed 10 characters' })
+    .max(14, { message: 'Registration number must not exceed 14 characters' })
     .regex(/^[A-Za-z0-9]+$/, { message: 'Invalid registration number format' }),
 })
 
