@@ -53,7 +53,7 @@ const EditSubject = () => {
         const fetchSubject = async () => {
             try {
                 const response = await axios.get(
-                    `${API_BASE_URL}/admin/subject/getSubjects/${id}`,
+                    `${API_BASE_URL}/admin/subject/getSubject/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
