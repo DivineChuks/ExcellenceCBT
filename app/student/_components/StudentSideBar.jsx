@@ -73,7 +73,7 @@ const StudentSideBar = () => {
         /> */}
 
         {/* My Scores */}
-        <SidebarItem
+        {/* <SidebarItem
           icon={<UserCircle size={20} />}
           label="My Profile"
           href="/student/scores"
@@ -81,12 +81,12 @@ const StudentSideBar = () => {
         />
 
         {/* Activities */}
-        <SidebarItem
+        {/* <SidebarItem
           icon={<BarChart size={20} />}
           label="Performance"
           href="/student/performance"
           active={activeLink === "performance"}
-        />
+        />  */}
       </div>
 
       {/* Logout */}

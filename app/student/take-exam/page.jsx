@@ -29,6 +29,7 @@ const ExamPage = () => {
     const [error, setError] = useState(null);
     const [examData, setExamData] = useState(null);
     const userId = useSelector((state) => state.user.user.userId);
+    const user = useSelector((state) => state.user.user)
     const router = useRouter()
 
     // Subject pagination state
@@ -92,7 +93,7 @@ const ExamPage = () => {
             });
             const exam = response.data[0];
             setExamData(exam);
-            setTimeLeft(Number(exam.duration));
+            setTimeLeft(Number(exam.duration) * 60);
 
             const groupedQuestions = exam.subjects.reduce((acc, subject) => {
                 acc[subject._id] = {
@@ -187,9 +188,9 @@ const ExamPage = () => {
     }
 
     const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
+        const totalMinutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+        return `${totalMinutes}:${secs < 10 ? "0" : ""}${secs}`;
     };
 
     const isLastPage = () => {
@@ -242,6 +243,8 @@ const ExamPage = () => {
         return questionIndex + 1; // Fallback
     };
 
+    console.log("timeLeft---->", timeLeft)
+
     if (loading) {
         return (
             <div className="flex md:pl-8 min-h-screen">
@@ -271,6 +274,7 @@ const ExamPage = () => {
                         <p className="text-center mt-10">No questions available.</p>
                     ) : (
                         <>
+                            <h2 className="text-base mb-4">Welcome,<span className="text-xl font-semibold text-blue-600"> {user?.name}</span></h2>
                             <div className="mt-3 mb-4 rounded-none flex justify-between items-center">
                                 <div className="text-sm text-gray-600">
                                     Answered: {totalQuestionsAnswered} of {totalQuestions} questions
@@ -282,7 +286,7 @@ const ExamPage = () => {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-bold">{examData?.title}</h2>
                                 <div className="flex items-center gap-2 text-red-600 font-semibold">
-                                    <Clock3 size={20} /> {formatTime(timeLeft)}
+                                    <Clock3 size={20} /> {formatTime(timeLeft)} mins
                                 </div>
                             </div>
 

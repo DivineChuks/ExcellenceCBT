@@ -88,6 +88,7 @@ const EditSubject = () => {
             );
 
             toast.success("Subject updated successfully!");
+            router.push("/admin/subjects")
         } catch (error) {
             console.error("Error updating subject:", error);
             toast.error("Failed to update subject. Please try again.");
