@@ -127,7 +127,7 @@ const ExamResultTable = () => {
   const columns = React.useMemo(() => [
     {
       accessorKey: "name",
-      header: "Student Name",
+      header: "STUDENT NAME",
       cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
     },
     // Dynamically add a column for each subject
@@ -140,8 +140,17 @@ const ExamResultTable = () => {
       },
     })),
     {
+      accessorKey: "totalScore",
+      header: "TOTAL SCORE",
+      cell: ({ row }) => (
+        <div className="font-semibold">
+          {row.getValue("totalScore")}
+        </div>
+      ),
+    },
+    {
       accessorKey: "percentage",
-      header: "Overall Score (%)",
+      header: "OVERALL SCORE (%)",
       cell: ({ row }) => (
         <div className="font-semibold text-blue-600">
           {row.getValue("percentage")}
@@ -177,7 +186,7 @@ const ExamResultTable = () => {
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id} className="text-base">
+                          <TableHead key={header.id} className="text-base font-semibold">
                             {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}
