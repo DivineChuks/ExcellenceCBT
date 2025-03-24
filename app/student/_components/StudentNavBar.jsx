@@ -14,7 +14,7 @@ const StudentNavBar = () => {
 
   const handleLogOut = () => {
     localStorage.clear()
-    router.push("/")
+    router.push("/student/auth")
   };
 
   return (

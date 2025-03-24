@@ -19,15 +19,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
+import { UserIcon, MailIcon, GraduationCap, IdCard } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const EditStudent = () => {
     const [loading, setLoading] = useState(false);
-    const [isEditing, setIsEditing] = useState(false)
+    const [isEditing, setIsEditing] = useState(false);
     const [exams, setExams] = useState([]);
     const router = useRouter();
-    const { id } = useParams(); // Get the student ID from the route
+    const { id } = useParams();
     const token = localStorage.getItem("token");
 
     // Define Zod schema for validation
@@ -71,6 +72,7 @@ const EditStudent = () => {
                 setValue("examId", student.examId);
             } catch (error) {
                 console.error("Error fetching student:", error);
+                toast.error("Failed to load student data");
             } finally {
                 setLoading(false);
             }
@@ -79,7 +81,7 @@ const EditStudent = () => {
         if (id) {
             fetchStudent();
         }
-    }, [id, setValue]);
+    }, [id, setValue, token]);
 
     // Fetch available exams
     useEffect(() => {
@@ -95,12 +97,13 @@ const EditStudent = () => {
                 setExams(response.data.findExams);
             } catch (error) {
                 console.error("Failed to fetch exams:", error);
+                toast.error("Failed to load available exams");
             } finally {
                 setLoading(false);
             }
         };
         fetchExams();
-    }, []);
+    }, [token]);
 
     // Handle form submission
     const onSubmit = async (data) => {
@@ -133,115 +136,174 @@ const EditStudent = () => {
                 );
             }
             toast.success("Student updated successfully!");
-            router.push("/admin/students/view")
+            router.push("/admin/students/view");
         } catch (error) {
             console.error("Error updating student:", error);
+            toast.error("Failed to update student");
         } finally {
             setIsEditing(false);
         }
     };
 
     return (
-        <div className="flex md:pl-8 min-h-screen">
+        <div className="flex md:pl-8 min-h-screen bg-gray-50">
             <AdminSideBar />
             <div className="flex flex-col w-full">
                 <AdminNavBar />
                 <div className="px-4 py-3 md:py-8 w-full flex justify-center items-start">
                     <Container>
                         <div className="p-6 flex flex-col items-center justify-center min-h-[80vh]">
-                            <div className="bg-white rounded-lg mx-auto shadow-md w-[600px] p-6 py-8">
-                                <h1 className="text-2xl font-bold mb-4">Edit Student</h1>
-                                <form onSubmit={handleSubmit(onSubmit)}>
-                                    {/* Name Field */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Name</label>
-                                        <input
-                                            {...register("name")}
-                                            type="text"
-                                            placeholder="Enter Student Name"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
-                                        {errors.name && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.name.message}
-                                            </p>
-                                        )}
+                            {loading ? (
+                                <div className="flex justify-center items-center h-64">
+                                    <Image
+                                        src="/loader.gif"
+                                        alt="Loading..."
+                                        width={50}
+                                        height={50}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-xl mx-auto shadow-md w-full max-w-xl p-8 border border-gray-100">
+                                    <div className="flex items-center mb-6">
+                                        <div className="bg-blue-100 p-3 rounded-full mr-4">
+                                            <UserIcon className="h-6 w-6 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h1 className="text-2xl font-bold text-gray-800">Edit Student</h1>
+                                            <p className="text-gray-500 text-sm">Update student information and exam assignment</p>
+                                        </div>
                                     </div>
+                                    
+                                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                                        {/* Name Field */}
+                                        <div>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <UserIcon className="h-5 w-5 text-gray-400" />
+                                                </div>
+                                                <input
+                                                    {...register("name")}
+                                                    type="text"
+                                                    placeholder="Enter Student Name"
+                                                    className="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                            {errors.name && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.name.message}
+                                                </p>
+                                            )}
+                                        </div>
 
-                                    {/* Email Field */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Email</label>
-                                        <input
-                                            {...register("email")}
-                                            type="email"
-                                            placeholder="Enter Email"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
-                                        {errors.email && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.email.message}
-                                            </p>
+                                        {/* Email Field */}
+                                        <div>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <MailIcon className="h-5 w-5 text-gray-400" />
+                                                </div>
+                                                <input
+                                                    {...register("email")}
+                                                    type="email"
+                                                    placeholder="Enter Email"
+                                                    className="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                            {errors.email && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.email.message}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Reg Number */}
+                                        <div>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">Registration Number</label>
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <IdCard className="h-5 w-5 text-gray-400" />
+                                                </div>
+                                                <input
+                                                    {...register("regNo")}
+                                                    placeholder="Enter Registration Number"
+                                                    type="text"
+                                                    className="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                            {errors.regNo && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.regNo.message}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Select Exam */}
+                                        {exams.length > 0 && (
+                                            <div>
+                                                <label className="block text-gray-700 text-sm font-medium mb-2">Assigned Exam</label>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <GraduationCap className="h-5 w-5 text-gray-400"  />
+                                                    </div>
+                                                    <Select
+                                                        onValueChange={(value) => setValue("examId", value)}
+                                                        defaultValue=""
+                                                    >
+                                                        <SelectTrigger className="w-full pl-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                            <SelectValue placeholder="Select Exam" className="text-gray-500" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="border border-gray-200 shadow-lg rounded-lg">
+                                                            {exams.map((exam) => (
+                                                                <SelectItem key={exam._id} value={exam._id} className="hover:bg-blue-50">
+                                                                    {exam.title}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            </div>
                                         )}
-                                    </div>
 
-                                    {/* Reg Number */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Reg No</label>
-                                        <input
-                                            {...register("regNo")}
-                                            placeholder="Enter Reg No"
-                                            type="text"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
-                                        {errors.regNo && (
-                                            <p className="text-red-500 text-sm">
-                                                {errors.regNo.message}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Select Exam */}
-                                    {exams.length > 0 && (<div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Choose Exam</label>
-                                        <Select
-                                            onValueChange={(value) => setValue("examId", value)}
-                                            defaultValue=""
-                                        >
-                                            <SelectTrigger className="w-full py-4">
-                                                <SelectValue placeholder="Select Exam" className="text-red-500" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {exams.map((exam) => (
-                                                    <SelectItem key={exam._id} value={exam._id}>
-                                                        {exam.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-
-                                    </div>)}
-
-                                    {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className="mt-6 w-full bg-blue-500 hover:bg-blue-400 text-base font-semibold text-white"
-                                        disabled={isEditing}
-                                    >
-                                        {isEditing ? <Image
-                                            src="/loader.gif"
-                                            className="text-white"
-                                            alt="loader" 
-                                            width={20}
-                                            height={20}
-                                        /> : "Update"}
-                                    </Button>
-                                </form>
-                            </div>
+                                        {/* Action Buttons */}
+                                        <div className="flex space-x-4 pt-2">
+                                            <Button
+                                                type="button"
+                                                className="w-full py-2.5 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-all"
+                                                onClick={() => router.push("/admin/students/view")}
+                                                disabled={isEditing}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all shadow-md"
+                                                disabled={isEditing}
+                                            >
+                                                {isEditing ? (
+                                                    <div className="flex items-center justify-center">
+                                                        <Image
+                                                            src="/loader.gif"
+                                                            alt="Saving..."
+                                                            width={20}
+                                                            height={20}
+                                                            className="mr-2"
+                                                        />
+                                                        <span>Updating...</span>
+                                                    </div>
+                                                ) : (
+                                                    "Save Changes"
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
                         </div>
                     </Container>
                 </div>
             </div>
-            <ToastContainer />
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 };

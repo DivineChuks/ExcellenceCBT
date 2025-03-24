@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,9 +21,10 @@ const AdminSideBar = () => {
   const [activeLink, setActiveLink] = useState("dashboard");
   const [openMenus, setOpenMenus] = useState({});
   const pathname = usePathname();
+  
   const handleLogout = () => {
-    localStorage.clear()
-    router.push("/admin/auth")
+    localStorage.clear();
+    router.push("/admin/auth");
   };
 
   useEffect(() => {
@@ -51,7 +53,6 @@ const AdminSideBar = () => {
     }
   }, [pathname]);
 
-
   const toggleMenu = (menu) => {
     setOpenMenus((prev) => ({
       ...prev,
@@ -59,20 +60,28 @@ const AdminSideBar = () => {
     }));
   };
 
-  console.log("activeLink---->", activeLink)
-
   return (
-    <div className="h-screen w-[18rem] hidden md:flex flex-col border-r border-gray-200 py-8 pr-4 sticky top-0 overflow-y-auto bg-white">
+    <div className="h-screen w-[18rem] hidden md:flex flex-col border-r border-gray-100 py-8 pr-4 sticky top-0 overflow-y-auto bg-gradient-to-b from-white to-gray-50 shadow-sm">
       {/* Header */}
-      <Link href="/">
-        <h2 className="font-bold text-2xl px-4">Excellence CBT</h2>
+      <Link href="/" className="px-6 mb-6">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-md bg-blue-600 flex items-center justify-center">
+            <BookOpen size={18} className="text-white" />
+          </div>
+          <h2 className="font-bold text-base bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
+            Excellence CBT
+          </h2>
+        </div>
       </Link>
 
+      {/* Divider */}
+      <div className="mx-6 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
       {/* Menu */}
-      <div className="mt-10 flex flex-col gap-6">
+      <div className="mt-8 flex flex-col gap-4 px-4">
         {/* Dashboard */}
         <SidebarItem
-          icon={<LayoutDashboard size={20} />}
+          icon={<LayoutDashboard size={18} className="text-blue-600" />}
           label="Dashboard"
           href="/admin/dashboard"
           active={activeLink === "dashboard"}
@@ -80,48 +89,23 @@ const AdminSideBar = () => {
 
         {/* Students */}
         <SidebarItem
-          icon={<CircleUser size={20} />}
+          icon={<CircleUser size={18} className="text-indigo-600" />}
           label="Students"
           href="/admin/students/view"
           active={activeLink === "students"}
         />
 
-        {/* Students */}
-        {/* <SidebarMenu
-          icon={<CircleUser size={20} />}
-          label="Students"
-          isOpen={openMenus.students}
-          toggleMenu={() => { toggleMenu("students") }}
-          active={activeLink === "students"}
-          subItems={[
-            { label: "All Students", href: "/admin/students/view" },
-            { label: "Register Students", href: "/admin/students/register" },
-          ]}
-        /> */}
-
+        {/* Subjects */}
         <SidebarItem
-          icon={<BookOpen size={20} />}
+          icon={<BookOpen size={18} className="text-purple-600" />}
           label="Subjects"
           href="/admin/subjects"
           active={activeLink === "subjects"}
         />
 
-        {/* Questions */}
-        {/* <SidebarMenu
-          icon={<FileText size={20} />}
-          label="Questions"
-          isOpen={openMenus.questions}
-          toggleMenu={() => toggleMenu("questions")}
-          active={activeLink === "questions"}
-          subItems={[
-            { label: "Manage Questions", href: "/admin/questions/manage" },
-            { label: "Create Questions", href: "/admin/questions/create" },
-          ]}
-        /> */}
-
         {/* Exams */}
         <SidebarMenu
-          icon={<ClipboardList size={20} />}
+          icon={<ClipboardList size={18} className="text-emerald-600" />}
           label="Exams"
           isOpen={openMenus.exams}
           toggleMenu={() => toggleMenu("exams")}
@@ -134,7 +118,7 @@ const AdminSideBar = () => {
 
         {/* Settings */}
         <SidebarItem
-          icon={<Settings size={20} />}
+          icon={<Settings size={18} className="text-gray-600" />}
           label="Settings"
           href="/admin/settings"
           active={activeLink === "settings"}
@@ -142,17 +126,17 @@ const AdminSideBar = () => {
       </div>
 
       {/* Logout */}
-      <div className="px-4 mt-auto">
+      <div className="px-6 mt-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-4" />
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-100 rounded"
+          className="flex w-full items-center gap-2 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 font-medium"
         >
-          <LogOut size={20} />
+          <LogOut size={18} />
           <span>Logout</span>
         </button>
       </div>
     </div>
-
   );
 };
 

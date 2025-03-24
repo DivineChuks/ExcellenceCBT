@@ -2,11 +2,6 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import Providers from "@/redux/providers"
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
 const nunito = Nunito({
   subsets: ['latin'],
 });
@@ -21,7 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${nunito.variable} antialiased`}
+        className={`${nunito.className} antialiased`}
       >
         <Providers>
           {children}

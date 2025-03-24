@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Container from "@/app/components/Container";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import 'katex/dist/katex.min.css';
 import {
     Dialog,
     DialogContent,
@@ -23,6 +24,7 @@ import AdminNavBar from "@/app/admin/_components/AdminNavBar";
 import Image from "next/image";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
+import katex from 'katex';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const token = localStorage.getItem("token");
@@ -37,6 +39,62 @@ const ManageExams = () => {
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [deletQuestionId, setDeleteQuestionId] = useState("")
     const router = useRouter();
+
+    // Add this function inside your ManageExams component
+    const renderKatexExpression = (content) => {
+        if (!content || typeof content !== 'string') return '';
+
+        try {
+            // Create a temporary div to work with
+            const tempEl = document.createElement('div');
+            tempEl.innerHTML = content;
+
+            // Process inline math expressions ($...$)
+            const processInlineMath = (text) => {
+                let result = text;
+                const regex = /\$(.*?)\$/g;
+                return result.replace(regex, (match, equation) => {
+                    try {
+                        return katex.renderToString(equation, {
+                            displayMode: false,
+                            throwOnError: false
+                        });
+                    } catch (err) {
+                        console.error('KaTeX error:', err);
+                        return match;
+                    }
+                });
+            };
+
+            // Process block math expressions ($$...$$)
+            const processBlockMath = (text) => {
+                let result = text;
+                const regex = /\$\$(.*?)\$\$/g;
+                return result.replace(regex, (match, equation) => {
+                    try {
+                        return katex.renderToString(equation, {
+                            displayMode: true,
+                            throwOnError: false
+                        });
+                    } catch (err) {
+                        console.error('KaTeX error:', err);
+                        return match;
+                    }
+                });
+            };
+
+            // Apply transformations
+            let processedContent = tempEl.innerHTML;
+            processedContent = processBlockMath(processedContent);
+            processedContent = processInlineMath(processedContent);
+
+            return processedContent;
+        } catch (error) {
+            console.error('Error rendering KaTeX:', error);
+            return content;
+        }
+    };
+
 
     useEffect(() => {
         const fetchExams = async () => {
@@ -149,32 +207,29 @@ const ManageExams = () => {
                                                             <div key={question._id} className="p-4 border-b flex justify-between">
                                                                 <div>
                                                                     <p className="font-semibold">
-                                                                        {index + 1 + startIndex}. {question.question.replace(/<[^>]+>/g, "")}
+                                                                        {index + 1 + startIndex}. <span dangerouslySetInnerHTML={{
+                                                                            __html: renderKatexExpression(question.question)
+                                                                        }} />
                                                                     </p>
                                                                     <ul className="text-sm text-gray-600 mt-2">
-                                                                        <li>A: {question.options.optionA}</li>
-                                                                        <li>B: {question.options.optionB}</li>
-                                                                        <li>C: {question.options.optionC}</li>
-                                                                        <li>D: {question.options.optionD}</li>
+                                                                        <li>A: <span dangerouslySetInnerHTML={{
+                                                                            __html: renderKatexExpression(question.options.optionA)
+                                                                        }} /></li>
+                                                                        <li>B: <span dangerouslySetInnerHTML={{
+                                                                            __html: renderKatexExpression(question.options.optionB)
+                                                                        }} /></li>
+                                                                        <li>C: <span dangerouslySetInnerHTML={{
+                                                                            __html: renderKatexExpression(question.options.optionC)
+                                                                        }} /></li>
+                                                                        <li>D: <span dangerouslySetInnerHTML={{
+                                                                            __html: renderKatexExpression(question.options.optionD)
+                                                                        }} /></li>
                                                                     </ul>
                                                                     <p className="mt-2 text-green-600 font-medium">
                                                                         Correct: {question.correctOption.toUpperCase()}
                                                                     </p>
                                                                 </div>
-                                                                <div className="flex gap-2">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        onClick={() => router.push(`/admin/questions/${question._id}/edit/${question.subjectId._id}`)}
-                                                                    >
-                                                                        Edit
-                                                                    </Button>
-                                                                    <Button variant="destructive" onClick={() => {
-                                                                        setIsDeleteOpen(true)
-                                                                        setDeleteQuestionId(question._id)
-                                                                    }}>
-                                                                        Delete
-                                                                    </Button>
-                                                                </div>
+                                                                {/* Rest of your code */}
                                                             </div>
                                                         ))}
 

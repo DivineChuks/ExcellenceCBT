@@ -1,4 +1,3 @@
-
 "use client"
 import React, { useEffect, useState } from "react";
 import {
@@ -24,21 +23,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AdminSideBar from "@/app/admin/_components/AdminSideBar";
 import AdminNavBar from "@/app/admin/_components/AdminNavBar";
 import axios from "axios";
-
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const token = localStorage.getItem("token");
 
 const ExamResultTable = () => {
-  const { id } = useParams(); // Get Exam ID from URL
+  const { id } = useParams();
   const [data, setData] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [examName, setExamName] = useState("Exam Results");
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        // Get token from localStorage inside the useEffect to avoid SSR issues
         const token = localStorage.getItem("token");
 
         const res = await axios.get(`${API_BASE_URL}/admin/exams/result/${id}`, {
@@ -50,8 +50,12 @@ const ExamResultTable = () => {
 
         console.log("API Response:", res.data);
 
+        // Set exam name if available
+        if (res.data?.examName) {
+          setExamName(res.data.examName);
+        }
+
         if (!res.data?.subjects || !Array.isArray(res.data.subjects)) {
-          console.error("Invalid response format:", res.data);
           setData([]);
           setLoading(false);
           return;
@@ -92,9 +96,7 @@ const ExamResultTable = () => {
         });
 
         // Calculate maximum possible score per subject
-        // For simplicity, we'll assume each subject has an equal weight
-        // You may need to adjust this logic based on your actual requirements
-        const maxScorePerSubject = 100; // Example value
+        const maxScorePerSubject = 100;
 
         // Convert the map to an array and calculate percentages
         const studentsArray = Array.from(studentMap.values()).map(student => {
@@ -103,12 +105,21 @@ const ExamResultTable = () => {
           const percentage = totalPossible > 0
             ? ((student.totalScore / totalPossible) * 100).toFixed(2) + "%"
             : "0.00%";
+          
+          // Calculate a numeric percentage for sorting
+          const numericPercentage = totalPossible > 0
+            ? (student.totalScore / totalPossible) * 100
+            : 0;
 
           return {
             ...student,
-            percentage
+            percentage,
+            numericPercentage
           };
         });
+
+        // Sort students by percentage (highest first)
+        studentsArray.sort((a, b) => b.numericPercentage - a.numericPercentage);
 
         setData(studentsArray);
       } catch (error) {
@@ -123,12 +134,33 @@ const ExamResultTable = () => {
     }
   }, [id]);
 
+  // Function to get score color class based on score value
+  const getScoreColorClass = (score) => {
+    if (score === undefined) return "text-gray-400";
+    if (score >= 80) return "text-green-600 font-medium";
+    if (score >= 70) return "text-blue-600 font-medium";
+    if (score >= 60) return "text-yellow-600 font-medium";
+    return "text-red-600 font-medium";
+  };
+
+  // Function to get percentage badge color
+  const getPercentageBadgeVariant = (percentageStr) => {
+    const percentage = parseFloat(percentageStr);
+    if (percentage >= 80) return "success";
+    if (percentage >= 70) return "default";
+    if (percentage >= 60) return "warning";
+    return "destructive";
+  };
 
   const columns = React.useMemo(() => [
     {
       accessorKey: "name",
       header: "STUDENT NAME",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+      cell: ({ row }) => (
+        <div className="font-medium text-gray-900">
+          {row.getValue("name")}
+        </div>
+      ),
     },
     // Dynamically add a column for each subject
     ...subjects.map(subject => ({
@@ -136,29 +168,35 @@ const ExamResultTable = () => {
       header: subject,
       cell: ({ row }) => {
         const score = row.original.scores[subject];
-        return <div className="">{score !== undefined ? score : "-"}</div>;
+        return (
+          <div className={getScoreColorClass(score)}>
+            {score !== undefined ? score : "-"}
+          </div>
+        );
       },
     })),
     {
       accessorKey: "totalScore",
       header: "TOTAL SCORE",
       cell: ({ row }) => (
-        <div className="font-semibold">
+        <div className="font-semibold text-gray-900">
           {row.getValue("totalScore")}
         </div>
       ),
     },
     {
       accessorKey: "percentage",
-      header: "OVERALL SCORE (%)",
-      cell: ({ row }) => (
-        <div className="font-semibold text-blue-600">
-          {row.getValue("percentage")}
-        </div>
-      ),
+      header: "OVERALL SCORE",
+      cell: ({ row }) => {
+        const percentage = row.getValue("percentage");
+        return (
+          <Badge variant={getPercentageBadgeVariant(percentage)}>
+            {percentage}
+          </Badge>
+        );
+      },
     },
   ], [subjects]);
-
 
   const table = useReactTable({
     data,
@@ -167,75 +205,113 @@ const ExamResultTable = () => {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
   });
 
   return (
-    <div className="flex md:pl-8 min-h-screen">
+    <div className="flex md:pl-8 min-h-screen bg-gray-50">
       <AdminSideBar />
       <div className="flex flex-col w-full">
         <AdminNavBar />
-        <h1 className="text-2xl font-bold mt-8 px-10">Exam Results</h1>
-        <div className="px-10 pb-3 mt-10 md:pb-8 w-full flex justify-center items-start">
-          <Container>
-            <div className="rounded-md border">
+        <div className="px-10 py-8">
+          <Card className="shadow-sm border-gray-200">
+            <CardHeader className="pb-2 border-b bg-gray-50">
+              <CardTitle className="text-2xl font-bold text-gray-800">{examName}</CardTitle>
+              <div className="text-sm text-gray-500 mt-1">
+                Showing {data.length} student results across {subjects.length} subjects
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
               {loading ? (
-                <div className="p-6 text-center"><Skeleton /></div>
+                <div className="p-12">
+                  <div className="space-y-4">
+                    <Skeleton className="w-full h-12" />
+                    <Skeleton className="w-full h-12" />
+                    <Skeleton className="w-full h-12" />
+                    <Skeleton className="w-full h-12" />
+                  </div>
+                </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id} className="text-base font-semibold">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id} className="text-base">
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
+                <div className="overflow-x-auto rounded-b-lg">
+                  <Table>
+                    <TableHeader className="bg-gray-100">
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead 
+                              key={header.id} 
+                              className="text-sm font-semibold text-gray-700 py-4"
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(header.column.columnDef.header, header.getContext())}
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                          No results found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row, index) => (
+                          <TableRow 
+                            key={row.id} 
+                            className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell 
+                                key={cell.id} 
+                                className="py-3 text-sm"
+                              >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={columns.length} className="h-24 text-center text-gray-500">
+                            No results found for this exam.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </Container>
+              <div className="flex items-center justify-between p-4 border-t">
+                <div className="text-sm text-gray-500">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {table.getPageCount()}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    className="h-8 px-3 text-xs"
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    className="h-8 px-3 text-xs"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

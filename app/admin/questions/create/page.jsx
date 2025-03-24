@@ -11,11 +11,11 @@ import Container from "@/app/components/Container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import TiptapEditor from "../../dashboard/_components/TipTapEditor";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import RichTextEditor from "../../dashboard/_components/Editor"
+import RichTextEditor from "../../dashboard/_components/Editor";
 import Image from "next/image";
+import { BookOpen, Book, HelpCircle, CheckCircle, FileText, Plus } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const token = localStorage.getItem("token");
@@ -37,8 +37,8 @@ const schema = z.object({
 const AddQuestion = () => {
     const router = useRouter();
     const [exams, setExams] = useState([]);
-    const [subjects, setSubjects] = useState([])
-    const [loading, setLoading] = useState(false)
+    const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [editorResetTrigger, setEditorResetTrigger] = useState(false);
     const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
@@ -70,6 +70,7 @@ const AddQuestion = () => {
                 setExams(response.data.findExams);
             } catch (error) {
                 console.error("Failed to fetch exams:", error);
+                toast.error("Failed to load exams");
             } finally {
                 setLoading(false);
             }
@@ -88,17 +89,16 @@ const AddQuestion = () => {
                 });
                 setSubjects(response.data);
             } catch (error) {
-                console.error("Error fetching exams:", error);
+                console.error("Error fetching subjects:", error);
+                toast.error("Failed to load subjects");
             }
         };
         fetchSubjects();
     }, []);
 
-    console.log("subjects--->", subjects)
-
     // Handle form submission
     const onSubmit = async (data) => {
-        setLoading(true)
+        setLoading(true);
         try {
             await axios.post(`${API_BASE_URL}/admin/exams/addQuestions`, data, {
                 headers: {
@@ -126,117 +126,195 @@ const AddQuestion = () => {
                 setValue(`options.${key}`, "");
             });
             setEditorResetTrigger(prev => !prev);
-            // router.push("/admin/questions"); // Redirect if needed
         } catch (error) {
             console.error("Failed to add question:", error);
-            alert("Error adding question. Try again.");
+            toast.error("Failed to add question. Please try again.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
     return (
-        <div className="flex md:pl-8 min-h-screen">
+        <div className="flex md:pl-8 min-h-screen bg-gray-50">
             <AdminSideBar />
             <div className="flex flex-col w-full">
                 <AdminNavBar />
-                <div className="px-4 py-3 md:py-8 w-full flex justify-center items-start">
+                <div className="px-4 py-6 md:py-12 w-full">
                     <Container>
-                        <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-lg p-8 mx-auto shadow-md w-[700px]">
-                            <h1 className="text-2xl font-bold mb-4">Add Question</h1>
-
-                            {/* Select Exam */}
-                            <div className="mb-4">
-                                <label className="block text-gray-700 mb-2">Select Exam</label>
-                                <Select onValueChange={(value) => setValue("exam", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Choose an exam" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {exams?.map((exam) => (
-                                            <SelectItem key={exam._id} value={exam._id}>
-                                                {exam.title}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.exam && <p className="text-red-500 text-sm">{errors.exam.message}</p>}
+                        <div className="max-w-4xl mx-auto">
+                            {/* Header Section */}
+                            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-t-xl p-6 text-white flex items-center shadow-md">
+                                <div className="bg-white/20 p-3 rounded-full mr-4">
+                                    <HelpCircle size={28} className="text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold">Add New Question</h1>
+                                    <p className="text-blue-100">Create exam questions with multiple choice options</p>
+                                </div>
                             </div>
-
-                            {/* Select Subject (Depends on Exam) */}
-                            <div className="mb-4">
-                                <label className="block text-gray-700 mb-2">Select Subject</label>
-                                <Select onValueChange={(value) => setValue("subjectId", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Choose a subject" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {subjects?.map((subject) => (
-                                            <SelectItem key={subject._id} value={subject._id}>
-                                                {subject.title}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.subjectId && <p className="text-red-500 text-sm">{errors.subjectId.message}</p>}
-                            </div>
-                            {/* Question */}
-                            <div className="mb-4">
-                                <label className="block text-gray-700 mb-2">Question</label>
-                                <RichTextEditor
-                                    value={watch("question")}
-                                    onChange={(content) => setValue("question", content)}
-                                    reset={editorResetTrigger}
-                                    placeholder="Type your question here..."
-                                />
-                                {errors.question && <p className="text-red-500 text-sm">{errors.question.message}</p>}
-                            </div>
-
-                            {/* Options */}
-                            <div className="mb-4">
-                                <label className="block text-gray-700 mb-2">Options</label>
-                                {["optionA", "optionB", "optionC", "optionD"].map((option, index) => (
-                                    <div key={index} className="flex items-center gap-2">
-                                        <span className="w-6">{String.fromCharCode(65 + index)}.</span>
-                                        <Input {...register(`options.${option}`)} placeholder={`Option ${index + 1}`} className="mb-3" />
+                            
+                            {/* Form Content */}
+                            <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-b-xl p-8 shadow-lg border border-gray-100">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Select Exam */}
+                                    <div className="space-y-2">
+                                        <label className="flex items-center text-gray-700 font-medium">
+                                            <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
+                                            Select Exam
+                                        </label>
+                                        <Select onValueChange={(value) => setValue("exam", value)}>
+                                            <SelectTrigger className="border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                                <SelectValue placeholder="Choose an exam" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {exams?.map((exam) => (
+                                                    <SelectItem key={exam._id} value={exam._id}>
+                                                        {exam.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.exam && <p className="text-red-500 text-sm mt-1">{errors.exam.message}</p>}
                                     </div>
-                                ))}
-                                {errors.options && <p className="text-red-500 text-sm">{errors.options.message}</p>}
-                            </div>
 
-                            {/* Correct Answer */}
-                            <div className="mb-8">
-                                <label className="block text-gray-700 mb-2">Correct Answer</label>
-                                <Select value={watch("correctOption")} onValueChange={(value) => setValue("correctOption", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select answer" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {["optionA", "optionB", "optionC", "optionD"].map((opt, idx) => (
-                                            <SelectItem key={idx} value={opt}>
-                                                {String.fromCharCode(65 + idx)}.
-                                            </SelectItem>
+                                    {/* Select Subject */}
+                                    <div className="space-y-2">
+                                        <label className="flex items-center text-gray-700 font-medium">
+                                            <Book className="h-4 w-4 mr-2 text-blue-600" />
+                                            Select Subject
+                                        </label>
+                                        <Select onValueChange={(value) => setValue("subjectId", value)}>
+                                            <SelectTrigger className="border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                                <SelectValue placeholder="Choose a subject" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {subjects?.map((subject) => (
+                                                    <SelectItem key={subject._id} value={subject._id}>
+                                                        {subject.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.subjectId && <p className="text-red-500 text-sm mt-1">{errors.subjectId.message}</p>}
+                                    </div>
+                                </div>
+
+                                {/* Question Section */}
+                                <div className="mt-6">
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                        <label className="flex items-center text-gray-700 font-medium mb-3">
+                                            <FileText className="h-4 w-4 mr-2 text-blue-600" />
+                                            Question Content
+                                        </label>
+                                        <div className="bg-white rounded-md border border-gray-200">
+                                            <RichTextEditor
+                                                value={watch("question")}
+                                                onChange={(content) => setValue("question", content)}
+                                                reset={editorResetTrigger}
+                                                placeholder="Type your question here..."
+                                            />
+                                        </div>
+                                        {errors.question && <p className="text-red-500 text-sm mt-2">{errors.question.message}</p>}
+                                    </div>
+                                </div>
+
+                                {/* Options Section */}
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                                        <CheckCircle className="h-5 w-5 mr-2 text-blue-600" />
+                                        Answer Options
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {["optionA", "optionB", "optionC", "optionD"].map((option, index) => (
+                                            <div key={index} className="relative">
+                                                <div className="absolute left-0 top-0 flex items-center justify-center h-full ml-3">
+                                                    <span className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 font-semibold text-sm">
+                                                        {String.fromCharCode(65 + index)}
+                                                    </span>
+                                                </div>
+                                                <Input 
+                                                    {...register(`options.${option}`)} 
+                                                    placeholder={`Option ${String.fromCharCode(65 + index)}`} 
+                                                    className="pl-12 py-6 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                                                />
+                                                {errors.options && errors.options[option] && (
+                                                    <p className="text-red-500 text-sm mt-1">{errors.options[option].message}</p>
+                                                )}
+                                            </div>
                                         ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.correctOption && <p className="text-red-500 text-sm">{errors.correctOption.message}</p>}
-                            </div>
+                                    </div>
+                                </div>
 
-                            {/* Submit Button */}
-                            <Button disabled={loading} type="submit" className="w-full bg-blue-500 text-base font-semibold py-2 hover:bg-blue-400">{loading ? (
-                                <Image
-                                    src="/loader.gif"
-                                    className="text-white"
-                                    alt="loader"
-                                    width={20}
-                                    height={20}
-                                />
-                            ) : "Add Question"}</Button>
-                        </form>
+                                {/* Correct Answer */}
+                                <div className="mt-6">
+                                    <label className="flex items-center text-gray-700 font-medium mb-2">
+                                        <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                        Correct Answer
+                                    </label>
+                                    <Select value={watch("correctOption")} onValueChange={(value) => setValue("correctOption", value)}>
+                                        <SelectTrigger className="border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
+                                            <SelectValue placeholder="Select correct answer" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {["optionA", "optionB", "optionC", "optionD"].map((opt, idx) => (
+                                                <SelectItem key={idx} value={opt}>
+                                                    Option {String.fromCharCode(65 + idx)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.correctOption && <p className="text-red-500 text-sm mt-1">{errors.correctOption.message}</p>}
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="mt-8 flex flex-col md:flex-row gap-4">
+                                    <Button 
+                                        disabled={loading} 
+                                        type="submit" 
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 rounded-lg shadow-md hover:shadow-lg transition-all"
+                                    >
+                                        {loading ? (
+                                            <div className="flex items-center justify-center">
+                                                <Image
+                                                    src="/loader.gif"
+                                                    alt="loading"
+                                                    width={24}
+                                                    height={24}
+                                                    className="mr-2"
+                                                />
+                                                <span>Saving Question...</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center">
+                                                <Plus className="h-5 w-5 mr-2" />
+                                                <span>Add Question</span>
+                                            </div>
+                                        )}
+                                    </Button>
+                                    <Button 
+                                        type="button" 
+                                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-6 rounded-lg shadow-sm transition-all"
+                                        onClick={() => router.push("/admin/exams/view")}
+                                    >
+                                        View All Exams
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
                     </Container>
                 </div>
             </div>
-            <ToastContainer />
+            <ToastContainer 
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </div>
     );
 };

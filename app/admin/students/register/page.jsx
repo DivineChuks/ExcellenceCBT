@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
+import { UserPlus, Mail, UserCircle, BookOpen } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -90,6 +91,7 @@ const RegisterStudent = () => {
             router.push("/admin/students/view");
         } catch (error) {
             console.error("Error registering student:", error);
+            toast.error("Registration failed. Please try again.");
         } finally {
             setIsRegistering(false);
         }
@@ -97,106 +99,143 @@ const RegisterStudent = () => {
 
 
     return (
-        <div className="flex md:pl-8 min-h-screen">
+        <div className="flex md:pl-8 min-h-screen bg-gray-50">
             <AdminSideBar />
             <div className="flex flex-col w-full">
                 <AdminNavBar />
                 <div className="px-4 py-3 md:py-8 w-full flex justify-center items-start">
                     <Container>
                         <div className="p-6 flex flex-col items-center justify-center min-h-[80vh]">
-                            <div className="bg-white rounded-lg mx-auto shadow-md w-[700px] p-6 py-8">
-                                <h1 className="text-2xl font-bold mb-4">Register Student</h1>
-                                <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="bg-white rounded-xl mx-auto shadow-lg w-full max-w-2xl p-8 border border-gray-100">
+                                <div className="flex items-center mb-8">
+                                    <div className="bg-blue-100 p-3 rounded-full mr-4">
+                                        <UserPlus className="h-8 w-8 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-800">Register New Student</h1>
+                                        <p className="text-gray-500">Enter student details to create a new account</p>
+                                    </div>
+                                </div>
+                                
+                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                     {/* Name Field */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 text-base mb-2">Name</label>
-                                        <input
-                                            {...register("name")}
-                                            type="text"
-                                            placeholder="Enter Student Name"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
+                                    <div>
+                                        <label className="block text-gray-700 font-medium mb-2">Full Name</label>
+                                        <div className="relative">
+                                            <UserCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                {...register("name")}
+                                                type="text"
+                                                placeholder="Enter student's full name"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            />
+                                        </div>
                                         {errors.name && (
-                                            <p className="text-red-500 text-sm">
+                                            <p className="text-red-500 text-sm mt-1">
                                                 {errors.name.message}
                                             </p>
                                         )}
                                     </div>
 
                                     {/* Email Field */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Email</label>
-                                        <input
-                                            {...register("email")}
-                                            type="email"
-                                            placeholder="Enter Email"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
+                                    <div>
+                                        <label className="block text-gray-700 font-medium mb-2">Email Address</label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                {...register("email")}
+                                                type="email"
+                                                placeholder="student@example.com"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            />
+                                        </div>
                                         {errors.email && (
-                                            <p className="text-red-500 text-sm">
+                                            <p className="text-red-500 text-sm mt-1">
                                                 {errors.email.message}
                                             </p>
                                         )}
                                     </div>
 
                                     {/* Reg Number */}
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Reg No</label>
-                                        <input
-                                            {...register("regNo")}
-                                            placeholder="Enter Reg No"
-                                            type="text"
-                                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                                        />
+                                    <div>
+                                        <label className="block text-gray-700 font-medium mb-2">Registration Number</label>
+                                        <div className="relative">
+                                            <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                {...register("regNo")}
+                                                placeholder="e.g. STU2025001"
+                                                type="text"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            />
+                                        </div>
                                         {errors.regNo && (
-                                            <p className="text-red-500 text-sm">
+                                            <p className="text-red-500 text-sm mt-1">
                                                 {errors.regNo.message}
                                             </p>
                                         )}
                                     </div>
 
-                                    {/* Select Exam */}
-                                    {/* {exams.length > 0 && (<div className="mb-4">
-                                        <label className="block text-gray-700 mb-2">Choose Exam</label>
-                                        <Select
-                                            onValueChange={(value) => setValue("examId", value)}
-                                            defaultValue=""
-                                        >
-                                            <SelectTrigger className="w-full py-4">
-                                                <SelectValue placeholder="Select Exam" className="text-red-500" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {exams.map((exam) => (
-                                                    <SelectItem key={exam._id} value={exam._id}>
-                                                        {exam.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-
-                                    </div>)} */}
+                                    {/* Select Exam - Uncomment when needed */}
+                                    {exams.length > 0 && (
+                                        <div>
+                                            <label className="block text-gray-700 font-medium mb-2">Choose Exam</label>
+                                            <Select
+                                                onValueChange={(value) => setValue("examId", value)}
+                                                defaultValue=""
+                                            >
+                                                <SelectTrigger className="w-full py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <SelectValue placeholder="Select an exam" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {exams.map((exam) => (
+                                                        <SelectItem key={exam._id} value={exam._id}>
+                                                            {exam.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
 
                                     {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className="mt-6 w-full bg-blue-500 py-2 hover:bg-blue-400 text-base font-semibold text-white"
-                                        disabled={isRegistering}
-                                    >
-                                        {isRegistering ? <Image
-                                            src="/loader.gif"
-                                            className="text-white"
-                                            alt="loader"
-                                            width={20}
-                                            height={20}
-                                        /> : "Register"}
-                                    </Button>
+                                    <div className="pt-2">
+                                        <Button
+                                            type="submit"
+                                            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg"
+                                            disabled={isRegistering}
+                                        >
+                                            {isRegistering ? (
+                                                <div className="flex items-center justify-center">
+                                                    <Image
+                                                        src="/loader.gif"
+                                                        className="mr-2"
+                                                        alt="loader"
+                                                        width={24}
+                                                        height={24}
+                                                    />
+                                                    <span>Registering...</span>
+                                                </div>
+                                            ) : (
+                                                "Register Student"
+                                            )}
+                                        </Button>
+                                    </div>
                                 </form>
+                                
+                                <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+                                    <button 
+                                        onClick={() => router.push("/admin/students/view")}
+                                        className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                                    >
+                                        View all students
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </Container>
                 </div>
             </div>
-            <ToastContainer />
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         </div>
     );
 };
