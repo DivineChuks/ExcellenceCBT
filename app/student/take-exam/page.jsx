@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, Clock3, ChevronLeft, ChevronRight, Loader, CheckCircle, Calculator, HelpCircle } from "lucide-react";
+import { LogOut, Clock3, ChevronLeft, ChevronRight, Loader, CheckCircle, Calculator, HelpCircle, Keyboard } from "lucide-react";
 import StudentSideBar from "../_components/StudentSideBar";
 import StudentNavBar from "../_components/StudentNavBar";
 import ExamStart from "./ExamStart";
@@ -29,6 +29,7 @@ const ExamPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [examData, setExamData] = useState(null);
+    const [showShortcutHelp, setShowShortcutHelp] = useState(false);
     const userId = useSelector((state) => state.user.user.userId);
     const user = useSelector((state) => state.user.user)
     const router = useRouter()
@@ -47,6 +48,58 @@ const ExamPage = () => {
             fetchExamData();
         }
     }, [started]);
+
+    // Handle keyboard shortcuts
+    useEffect(() => {
+        if (!started) return;
+
+        const handleKeyDown = (e) => {
+            // Don't trigger shortcuts if inputs or dialogs are focused
+            if (e.target.tagName === 'INPUT' ||
+                e.target.tagName === 'TEXTAREA' ||
+                showCalculator ||
+                showSubmitDialog) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+            const currentQuestions = getCurrentQuestions();
+
+            if (currentQuestions.length > 0) {
+                const currentQuestion = currentQuestions[0];
+                const optionKeys = Object.keys(currentQuestion.options);
+
+                // Option shortcuts (a, b, c, d)
+                if (['a', 'b', 'c', 'd'].includes(key) && key <= optionKeys[optionKeys.length - 1]) {
+                    const optionIndex = key.charCodeAt(0) - 97; // Convert a->0, b->1, etc.
+                    if (optionIndex < optionKeys.length) {
+                        handleOptionSelect(currentQuestion._id, optionKeys[optionIndex]);
+                    }
+                }
+
+                // Submit shortcut (s)
+                else if (key === 's') {
+                    setShowSubmitDialog(true);
+                }
+
+                // Next/Previous shortcuts (right/left arrows)
+                else if (key === 'arrowright') {
+                    handleNextPage();
+                }
+                else if (key === 'arrowleft') {
+                    handlePreviousPage();
+                }
+
+                // Help shortcut (h)
+                else if (key === 'h') {
+                    setShowShortcutHelp(true);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [started, currentPage, currentSubjectIndex, showCalculator, showSubmitDialog, questionsBySubject, subjectKeys]);
 
     const renderKatexExpression = (content) => {
         if (!content || typeof content !== 'string') return '';
@@ -344,8 +397,16 @@ const ExamPage = () => {
                                     {/* <h1 className="text-2xl font-bold mt-1">{examData?.title}</h1> */}
                                 </div>
                                 <div className="flex items-center gap-4 mt-3 md:mt-0">
-                                    <Button onClick={() => setShowCalculator(true)}
-                                        className="bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 flex items-center gap-2 shadow-sm">
+                                    <Button
+                                        onClick={() => setShowShortcutHelp(true)}
+                                        className="bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 flex items-center gap-2 shadow-sm"
+                                    >
+                                        <Keyboard size={16} /> Shortcuts
+                                    </Button>
+                                    <Button
+                                        onClick={() => setShowCalculator(true)}
+                                        className="bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 flex items-center gap-2 shadow-sm"
+                                    >
                                         <Calculator size={16} /> Calculator
                                     </Button>
                                     <div className="flex items-center gap-2 text-red-600 font-medium bg-red-50 px-4 py-2 rounded-full">
@@ -400,14 +461,6 @@ const ExamPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Progress Bar for current subject */}
-                                    {/* <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                                        <Progress
-                                            value={(currentPage + 1) / getTotalPagesForSubject(subjectKeys[currentSubjectIndex]) * 100}
-                                            className="h-2 bg-gray-100 [&>div]:bg-indigo-600"
-                                        />
-                                    </div> */}
-
                                     {/* Current Questions */}
                                     {getCurrentQuestions().map((question, idx) => {
                                         const localQuestionIndex = currentPage * questionsPerPage + idx;
@@ -424,27 +477,35 @@ const ExamPage = () => {
                                                     <span dangerouslySetInnerHTML={{ __html: renderKatexExpression(question.question) }} />
                                                 </div>
                                                 <div className="space-y-3 mt-4">
-                                                    {Object.entries(question.options).map(([key, value]) => (
-                                                        <label
-                                                            key={`${question._id}-${key}`}
-                                                            className={`block cursor-pointer p-3 rounded-md border hover:bg-indigo-50 transition-colors ${answers[question._id] === key
-                                                                ? "bg-indigo-50 border-indigo-300"
-                                                                : "border-gray-200"
-                                                                }`}
-                                                        >
-                                                            <div className="flex items-center">
-                                                                <input
-                                                                    type="radio"
-                                                                    name={`question-${question._id}`}
-                                                                    value={key}
-                                                                    checked={answers[question._id] === key}
-                                                                    onChange={() => handleOptionSelect(question._id, key)}
-                                                                    className="mr-3 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-                                                                />
-                                                                <span>{value}</span>
-                                                            </div>
-                                                        </label>
-                                                    ))}
+                                                    {Object.entries(question.options).map(([key, value], optionIndex) => {
+                                                        const shortcutKey = String.fromCharCode(97 + optionIndex); // a, b, c, d
+                                                        return (
+                                                            <label
+                                                                key={`${question._id}-${key}`}
+                                                                className={`block cursor-pointer p-3 rounded-md border hover:bg-indigo-50 transition-colors ${answers[question._id] === key
+                                                                    ? "bg-indigo-50 border-indigo-300"
+                                                                    : "border-gray-200"
+                                                                    }`}
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`question-${question._id}`}
+                                                                            value={key}
+                                                                            checked={answers[question._id] === key}
+                                                                            onChange={() => handleOptionSelect(question._id, key)}
+                                                                            className="mr-3 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                                                                        />
+                                                                        <span>{value}</span>
+                                                                    </div>
+                                                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500 font-mono">
+                                                                        {shortcutKey}
+                                                                    </span>
+                                                                </div>
+                                                            </label>
+                                                        );
+                                                    })}
                                                 </div>
                                             </Card>
                                         );
@@ -477,6 +538,17 @@ const ExamPage = () => {
                                             </Button>
                                         )}
                                     </div>
+
+                                    {/* Floating Submit Button - Always visible */}
+                                    {!isLastPage() && (<div className="fixed bottom-4 right-0 left-0 flex justify-center z-50">
+                                        <Button
+                                            className="bg-green-600 hover:bg-green-700 py-5 px-6 rounded-md font-semibold flex items-center gap-2 shadow-md"
+                                            onClick={() => setShowSubmitDialog(true)}
+                                        >
+                                            <CheckCircle size={18} /> Submit Exam <span className="ml-1 text-xs bg-green-700 px-2 py-0.5 rounded">S</span>
+                                        </Button>
+                                    </div>)}
+
 
                                     {/* Question Navigator */}
                                     <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 mt-8">
@@ -534,7 +606,6 @@ const ExamPage = () => {
                             <Progress
                                 value={(totalQuestionsAnswered / totalQuestions) * 100}
                                 className="h-2 bg-gray-200"
-                                indicatorClassName="bg-green-500"
                             />
                         </div>
                     </div>
@@ -556,6 +627,57 @@ const ExamPage = () => {
                 </DialogContent>
             </Dialog>
 
+            {/* Keyboard Shortcuts Help Dialog */}
+            <Dialog open={showShortcutHelp} onOpenChange={setShowShortcutHelp}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+                            <Keyboard size={20} /> Keyboard Shortcuts
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Select Option A</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">A</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Select Option B</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">B</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Select Option C</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">C</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Select Option D</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">D</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Submit Exam</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">S</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Next Question</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">→</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2 border-b">
+                                <span className="font-medium">Previous Question</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">←</kbd>
+                            </div>
+                            <div className="flex justify-between items-center p-2">
+                                <span className="font-medium">Show Shortcuts</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border rounded text-sm">H</kbd>
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={() => setShowShortcutHelp(false)} className="w-full">
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             {/* Calculator Dialog */}
             <Dialog open={showCalculator} onOpenChange={setShowCalculator}>
                 <DialogContent className="sm:max-w-md">

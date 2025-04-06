@@ -184,18 +184,6 @@ const ExamResultTable = () => {
         </div>
       ),
     },
-    {
-      accessorKey: "percentage",
-      header: "OVERALL SCORE",
-      cell: ({ row }) => {
-        const percentage = row.getValue("percentage");
-        return (
-          <Badge variant={getPercentageBadgeVariant(percentage)}>
-            {percentage}
-          </Badge>
-        );
-      },
-    },
   ], [subjects]);
 
   const table = useReactTable({
